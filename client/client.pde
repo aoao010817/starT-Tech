@@ -2,7 +2,7 @@ import processing.net.*;
 Client client;
 
 void setup() {
-  client = new Client(this, "", 20000);
+  client = new Client(this, "192.168.86.24", 20000);
 }
 
 void draw(){}
