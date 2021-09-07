@@ -135,7 +135,6 @@ void draw_maze3D() {
     stroke(0);
     float r = float(move_count)/float(move_time-1);
     perspective(radians(100), float(width)/float(height), 1, 800);
-    
     if (on_turn) {
         int f = 0;
         if (piece_dir-piece_dirprev == 1 || piece_dir-piece_dirprev == -3) {
@@ -149,7 +148,7 @@ void draw_maze3D() {
     } else if (on_move) {
         float m_x = piece_x - piece_xprev;
         float m_y = piece_y - piece_yprev;
-        camera((piece_xprev+m_x*r)*road_w, (piece_yprev+m_y*r)*road_w, 0, piece_x*road_w+dir_x[piece_dir], piece_y*road_w+dir_y[piece_dir], 0, 0, 0, -1);
+        camera((piece_xprev+m_x*r)*road_w, (piece_yprev+m_y*r)*road_w, 0, (piece_x+dir_x[piece_dir])*road_w+dir_x[piece_dir], (piece_y+dir_y[piece_dir])*road_w+dir_y[piece_dir], 0, 0, 0, -1);
     } else {
         camera(piece_x*road_w, piece_y*road_w, 0, piece_x*road_w+dir_x[piece_dir], piece_y*road_w+dir_y[piece_dir], 0, 0, 0, -1);
     }
