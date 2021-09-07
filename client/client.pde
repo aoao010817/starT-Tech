@@ -20,6 +20,7 @@ boolean on_move = false;
 boolean on_turn = false;
 int move_time = 10;
 int move_count = 0;
+String C_id = "00";
 
 void setup() {
     size(800, 600, P3D);
@@ -33,9 +34,11 @@ void draw(){
 }
 
 void clientEvent(Client c) {
-    String s = c.readString();
-    if (s != null) {
-        println("client received: " + s);
+    String S_str = c.readString();
+    if (S_str != null) {
+        if (C_id == "00") {
+            C_id = S_str.substring(0, 2);
+        }
     }
 }
 
@@ -98,6 +101,22 @@ void keyPressed() {
         piece_dirprev = piece_dir;
         piece_dir = (piece_dir+1) % 4;
         on_turn = true;
+    }
+    
+    String C_str = C_id;
+    if (piece_x < 10) {
+      C_str += "00" + str(piece_x);
+    } else if (piece_x < 100) {
+      C_str += "0" + str(piece_x);
+    } else {
+      C_str += str(piece_x);
+    }
+    if (piece_y < 10) {
+      C_str += "00" + str(piece_y);
+    } else if (piece_y < 100) {
+      C_str += "0" + str(piece_y);
+    } else {
+      C_str += str(piece_y);
     }
 }
 
