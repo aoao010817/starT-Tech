@@ -39,7 +39,21 @@ void clientEvent(Client c) {
         if (C_id == "00") {
             C_id = S_str.substring(0, 2);
         }
-        println("C: " + S_str);
+        for (int x = 3; x < board_x-3; x++) {
+            for (int y = 3; y < board_y-3; y++) {
+                road_map[x][y] = 0;
+            }
+        }
+        for (int i = 0; i < (S_str.length()-2) / 6; i++) {
+            String id = S_str.substring(6 * i + 2, 6 * i + 4);
+            int x = int(S_str.substring(6 * i + 4, 6 * i + 6));
+            int y = int(S_str.substring(6 * i + 6, 6 * i + 8));
+            println(id);
+            println(C_id);
+            if (!id.equals(C_id)) {
+                road_map[x][y] = 2;
+            }
+        }
     }
 }
 
@@ -100,15 +114,11 @@ void keyPressed() {
     
     String C_str = C_id;
     if (piece_x < 10) {
-      C_str += "00" + str(piece_x);
-    } else if (piece_x < 100) {
       C_str += "0" + str(piece_x);
     } else {
       C_str += str(piece_x);
     }
     if (piece_y < 10) {
-      C_str += "00" + str(piece_y);
-    } else if (piece_y < 100) {
       C_str += "0" + str(piece_y);
     } else {
       C_str += str(piece_y);
@@ -173,6 +183,8 @@ void draw_maze3D() {
                 fill(255, 255, 255);
             } else if (road_map[x][y] == 1) {
                 fill(30, 30, 30);
+            } else if (road_map[x][y] == 2) {
+                fill(200, 200, 0);
             }
             pushMatrix();
             if (road_map[x][y] == 1) {
@@ -194,3 +206,11 @@ void draw_maze3D() {
         }
     }
 }
+
+//void DrawAvatar(int x, int y) {
+//  fill(255, 255, 255);
+//  pushMatrix();
+//  translate(5*road_w, 5*road_w, 0);
+//  box(road_w);
+//  popMatrix();
+//}
