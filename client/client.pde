@@ -39,13 +39,8 @@ void clientEvent(Client c) {
         if (C_id == "00") {
             C_id = S_str.substring(0, 2);
         }
+        println("C: " + S_str);
     }
-}
-
-void mouseClicked() {
-    String s = "(" + mouseX + "," + mouseY + ") was clicked";
-    println(s);
-    client.write(s);
 }
 
 void keyPressed() {
@@ -118,6 +113,7 @@ void keyPressed() {
     } else {
       C_str += str(piece_y);
     }
+    client.write(C_str);
 }
 
 void make_board(int x, int y, int w) {
