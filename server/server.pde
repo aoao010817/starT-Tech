@@ -35,15 +35,21 @@ void draw() {
     coordinates[int(C_id)-1][1] = piece_y;
     coordinates[int(C_id)-1][2] -= client_num;
     coordinates[int(C_id)-1][3] = avater_num;
+    Outer:
     for (int i = 1; i <= client_num; i++) {
+      for (int j = 0; j < delete_num; j++) {
+        if (deletes[j] == i) {
+          continue Outer;
+        }
+      }
       coordinates[i-1][2]++;
       if (coordinates[i-1][2] > client_num*5) {
         coordinates[i-1][0] = 0;
-        coordinates[i-1][1] = 1;
+        coordinates[i-1][1] = 0;
         coordinates[i-1][2] = 0;
-        coordinates[i-1][3] = 0;
+        coordinates[i-1][3] = 9;
         deletes[delete_num] = i;
-        //delete_num++;
+        delete_num++;
       }
       if (i < 10) {
         S_str += "0" + str(i);
