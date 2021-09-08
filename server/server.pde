@@ -49,7 +49,7 @@ void draw() {
       } else {
         S_str += str(i);
       }
-      S_str += coordinates[i-1][4];
+      S_str += coordinates[i-1][3];
       if (coordinates[i-1][0] < 10) {
         S_str += "0" + str(coordinates[i-1][0]);
       } else {
