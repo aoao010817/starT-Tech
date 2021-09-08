@@ -33,14 +33,14 @@ void draw() {
     coordinates[int(C_id)-1][0] = piece_x;
     coordinates[int(C_id)-1][1] = piece_y;
     coordinates[int(C_id)-1][2] -= client_num;
-    coordinates[int(C_id)-1][4] = avater_num;
+    coordinates[int(C_id)-1][3] = avater_num;
     for (int i = 1; i <= client_num; i++) {
       coordinates[i-1][2]++;
       if (coordinates[i-1][2] > client_num*5) {
         coordinates[i-1][0] = 0;
         coordinates[i-1][1] = 1;
         coordinates[i-1][2] = 0;
-        coordinates[i-1][4] = 0;
+        coordinates[i-1][3] = 0;
         deletes[delete_num] = i;
         delete_num++;
       }
