@@ -1,7 +1,7 @@
 import processing.net.*;
 Client client;
-PVector gravity = new PVector(0, 0.1);
-ArrayList<ParticleSystem> particleSystem;
+PVector gravity = new PVector(0, 0.1); //重力のようなもの
+ArrayList<ParticleSystem> particleSystem; //花火の情報
 
 int board_x = 0;// ボードサイズ
 int board_y = 0;
