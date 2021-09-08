@@ -27,7 +27,6 @@ void setup() {
     // client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
-    colorMode(HSB, 360, 100, 100, 100); // HSBでの色指定にする
     smooth(); // 描画を滑らかに
     particleSystem = new ArrayList<ParticleSystem>();
 }
@@ -175,6 +174,7 @@ void init_maze() {
 
 // 描画関数
 void draw_maze3D() {
+    colorMode(RGB, 255, 255, 255);
     background(20);
     stroke(0);
     float r = float(move_count)/float(move_time-1);
@@ -199,7 +199,7 @@ void draw_maze3D() {
     for (int x = 2; x < board_x-2; x++) {
         for (int y = 2; y < board_y-2; y++) {
             if (road_map[x][y] == 0) {
-                fill(255, 255, 255);
+                fill(0, 0, 0);
             } else if (road_map[x][y] == 1) {
                 fill(30, 30, 30);
             } else if (road_map[x][y] == 2) {
@@ -241,12 +241,14 @@ class Particle {
   boolean seed = false;
   color c;
   Particle() {
+    colorMode(HSB, 360, 100, 100); // HSBでの色指定にする
     pos = new PVector(random(0,800), random(0,600), 0);
     vel = new PVector(0, 0, random(-12, -6));
     acc = new PVector(0, 0, 0.1);
     c = color(random(360), 80, 100);
   }
   Particle(float x, float y, float hue) {
+    colorMode(HSB, 360, 100, 100); // HSBでの色指定にする
     pos = new PVector(x, y, random(-500, 500));
     vel = new PVector(0, 0, random(-12, -6));
     acc = new PVector(0, 0, 0.1);
@@ -254,6 +256,7 @@ class Particle {
     seed = true;
   }
   Particle(PVector _pos, float hue) {
+    colorMode(HSB, 360, 100, 100); // HSBでの色指定にする
     pos = new PVector(_pos.x, _pos.y, _pos.z);
     vel = PVector.random3D();
     vel.mult(random(4, 6));
