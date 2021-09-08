@@ -6,7 +6,7 @@ ArrayList<ParticleSystem> particleSystem; //花火の情報
 int board_x = 0;// ボードサイズ
 int board_y = 0;
 int road_w = 0;// ボード1マスのサイズ
-int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～5:他ユーザー)
+int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～17:他ユーザー)
 int piece_x = 0;// 自アバターの座標
 int piece_y = 0; 
 int[] dir_x = {1, 0, -1, 0}; //進行方向と座標の関係を保持
@@ -60,9 +60,9 @@ void draw(){
   request_count++;
   if (request_count >= 12 && id_exist) {
     request_count = 0;
-    // format: クライアントID(3桁) + X座標(2桁) + Y座標(2桁) 
+    // format: クライアントID(3桁) + 向き(0～3) + X座標(2桁) + Y座標(2桁) 
 
-    String C_str = C_id;
+    String C_str = C_id + str(piece_dir);
     if (piece_x < 10) {
       C_str += "0" + str(piece_x);
     } else {
@@ -85,10 +85,14 @@ void Avater(int x, int y, int num) {
     Avater3,
     Avater4
   };
+  int avater_num = (num-2)/4;
+  int avater_dir = (num-2)%4;
+  
   pushMatrix();
   translate(x*road_w, y*road_w, -11);
   lights();
-  shape(Avater_list[num-2]);
+  rotateY(PI/2 * avater_dir);
+  shape(Avater_list[avater_num]);
   popMatrix();
 }
 
@@ -105,19 +109,20 @@ void clientEvent(Client c) {
   String S_str = c.readString();
   println("C:" + S_str);
   if (S_str != null) {
-    if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%7 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
+    if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%8 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
         for (int y = 2; y < board_y-2; y++) {
           road_map[x][y] = 0;
         }
       }
-      for (int i = 0; i < (S_str.length()-3) / 7; i++) { // 他ユーザーの座標を取得
+      for (int i = 0; i < (S_str.length()-3) / 8; i++) { // 他ユーザーの座標を取得
 
-        String id = S_str.substring(7 * i + 3, 7 * i + 6);
-        int x = int(S_str.substring(7 * i + 6, 7 * i + 8));
-        int y = int(S_str.substring(7 * i + 8, 7 * i + 10));
+        String id = S_str.substring(8 * i + 3, 8 * i + 6);
+        int dir = int(S_str.substring(8 * i + 6, 8 * i + 7));
+        int x = int(S_str.substring(8 * i + 7, 8 * i + 9));
+        int y = int(S_str.substring(8 * i + 9, 8 * i + 11));
         if (!id.equals(C_id)) {
-          road_map[x][y] = 2 + int(id.substring(2));
+          road_map[x][y] = 2 + int(id.substring(2))*4 + dir;
         }
       }
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
@@ -275,7 +280,7 @@ void draw_maze3D() {
         box(road_w, road_w, 1);
         popMatrix();
       }
-      if (status >= 2 && status <= 5) {
+      if (status >= 2 && status <= 17) {
         Avater(x, y, status);
       }
     }
