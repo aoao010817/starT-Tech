@@ -20,10 +20,12 @@ boolean on_turn = false;
 int move_time = 10; // アニメーションの描画時間(ms)
 int move_count = 0;
 String C_id = "00"; // 自分のクライアントID
+Boolean id_exist = false;
+int request_count = 0;
 
 void setup() {
     size(800, 600, P3D);
-    client = new Client(this, "", 5024);
+    client = new Client(this, "192.168.86.31", 5024);
     //client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
@@ -32,45 +34,64 @@ void setup() {
 }
 
 void draw(){
-    draw_maze3D();
-    if (random(1) < 0.05) {
-    particleSystem.add(new ParticleSystem());
+  draw_maze3D();
+  if (random(1) < 0.05) {
+  particleSystem.add(new ParticleSystem());
+  }
+  for (int i = particleSystem.size()-1; i >= 0; i--) {
+    ParticleSystem ps = particleSystem.get(i);
+    ps.run();
+    if (ps.done()) {
+      particleSystem.remove(ps);
     }
-    for (int i = particleSystem.size()-1; i >= 0; i--) {
-      ParticleSystem ps = particleSystem.get(i);
-      ps.run();
-      if (ps.done()) {
-        particleSystem.remove(ps);
-      }
+  }
+  
+  request_count++;
+  if (request_count >= 12 && id_exist) {
+    request_count = 0;
+    
+    // format: クライアントID(2桁) + X座標(2桁) + Y座標(2桁) 
+    String C_str = C_id;
+    if (piece_x < 10) {
+      C_str += "0" + str(piece_x);
+    } else {
+      C_str += str(piece_x);
     }
-}
-
-void exit() {
-  println("exit.");
+    if (piece_y < 10) {
+      C_str += "0" + str(piece_y);
+    } else {
+      C_str += str(piece_y);
+    }
+    client.write(C_str);
+  }
 }
 
 // サーバーからメッセージを受け取った際に実行
 void clientEvent(Client c) {
-    String S_str = c.readString();
-    println("C:"  + S_str);
-    if (S_str != null) {
-        if (C_id == "00") {
-            C_id = S_str.substring(0, 2);
+  String S_str = c.readString();
+  println("C:"  + S_str);
+  if (S_str != null) {
+    if (S_str.substring(0, 2).equals(C_id)) { // 対象クライアントIDが自分のIDと等しいとき 
+      for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
+        for (int y = 2; y < board_y-2; y++) {
+          road_map[x][y] = 0;
         }
-        for (int x = 2; x < board_x-2; x++) {
-            for (int y = 2; y < board_y-2; y++) {
-                road_map[x][y] = 0;
-            }
+      }
+      for (int i = 0; i < (S_str.length()-2) / 6; i++) { // 他ユーザーの座標を取得
+        String id = S_str.substring(6 * i + 2, 6 * i + 4);
+        int x = int(S_str.substring(6 * i + 4, 6 * i + 6));
+        int y = int(S_str.substring(6 * i + 6, 6 * i + 8));
+        if (!id.equals(C_id)) {
+          road_map[x][y] = 2;
         }
-        for (int i = 0; i < (S_str.length()-2) / 6; i++) {
-            String id = S_str.substring(6 * i + 2, 6 * i + 4);
-            int x = int(S_str.substring(6 * i + 4, 6 * i + 6));
-            int y = int(S_str.substring(6 * i + 6, 6 * i + 8));
-            if (!id.equals(C_id)) {
-                road_map[x][y] = 2;
-            }
-        }
+      }
+    } else if (C_id == "00") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
+      if (S_str.length() == 2) {
+         C_id = S_str;
+         id_exist = true;
+      }
     }
+  }
 }
 
 void keyPressed() {
@@ -127,20 +148,6 @@ void keyPressed() {
         piece_dir = (piece_dir+1) % 4;
         on_turn = true;
     }
-    
-    // format: クライアントID(2桁) + X座標(2桁) + Y座標(2桁) 
-    String C_str = C_id;
-    if (piece_x < 10) {
-      C_str += "0" + str(piece_x);
-    } else {
-      C_str += str(piece_x);
-    }
-    if (piece_y < 10) {
-      C_str += "0" + str(piece_y);
-    } else {
-      C_str += str(piece_y);
-    }
-    client.write(C_str);
 }
 
 // ボード初期化関数
