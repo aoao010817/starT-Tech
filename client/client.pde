@@ -26,10 +26,11 @@ PShape Avater3;
 PShape Avater4;
 Boolean id_exist = false;
 int request_count = 0;
+boolean keyFlag = false;
+String tmp = "";
 
 void setup() {
     size(800, 600, P3D);
-    // client = new Client(this, "", 5024);
     client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
@@ -42,7 +43,7 @@ void setup() {
 }
 
 void draw(){
-  draw_maze3D();
+  draw_maze3D();  
   if (random(1) < 0.3) {
     particleSystem.add(new ParticleSystem());
   }
@@ -56,9 +57,8 @@ void draw(){
   
   request_count++;
   if (request_count >= 12 && id_exist) {
-    request_count = 0;
-    
-    // format: クライアントID(3桁) + X座標(2桁) + Y座標(2桁) 
+    request_count = 0
+    // format: クライアントID(2桁) + X座標(2桁) + Y座標(2桁) 
     String C_str = C_id;
     if (piece_x < 10) {
       C_str += "0" + str(piece_x);
@@ -172,6 +172,27 @@ void keyPressed() {
         piece_dir = (piece_dir+1) % 4;
         on_turn = true;
     }
+    // コメント入力
+    println("key pressed key=" + key + ",keyCode=" + keyCode);
+    if (keyCode == 47) {
+        keyFlag = true;
+    }
+    else if (keyCode == 10) {
+        keyFlag = false;
+        println("入力:" + tmp);
+        client.write("str"+tmp);
+        tmp = "";
+    }
+    if (keyFlag){
+      if (keyCode == 8) { // backspace.
+        if (tmp.length() >= 1) {
+        tmp = tmp.substring(0, tmp.length()-1);
+        }
+    } else if(keyCode != 47) {
+      tmp += key;
+      println("現在:"+tmp);
+    }
+  }
 }
 
 // ボード初期化関数
