@@ -6,7 +6,7 @@ ArrayList<ParticleSystem> particleSystem; //花火の情報
 int board_x = 0;// ボードサイズ
 int board_y = 0;
 int road_w = 0;// ボード1マスのサイズ
-int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2:他ユーザー)
+int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～5:他ユーザー)
 int piece_x = 0;// 自アバターの座標
 int piece_y = 0; 
 int[] dir_x = {1, 0, -1, 0}; //進行方向と座標の関係を保持
@@ -19,8 +19,11 @@ boolean on_move = false;
 boolean on_turn = false;
 int move_time = 10; // アニメーションの描画時間(ms)
 int move_count = 0;
-String C_id = "00"; // 自分のクライアントID
+String C_id = "000"; // 自分のクライアントID
 PShape Avater1;
+PShape Avater2;
+PShape Avater3;
+PShape Avater4;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false;
@@ -34,6 +37,9 @@ void setup() {
     smooth(); // 描画を滑らかに
     particleSystem = new ArrayList<ParticleSystem>();
     Avater1 = loadShape("../Avater/Avater1.obj"); //Avaterの読み込み
+    Avater2 = loadShape("../Avater2/Avater2.obj");
+    Avater3 = loadShape("../Avater3/Avater3.obj");
+    Avater4 = loadShape("../Avater4/Avater4.obj");
 }
 
 void draw(){
@@ -51,7 +57,7 @@ void draw(){
   
   request_count++;
   if (request_count >= 12 && id_exist) {
-    request_count = 0;
+    request_count = 0
     // format: クライアントID(2桁) + X座標(2桁) + Y座標(2桁) 
     String C_str = C_id;
     if (piece_x < 10) {
@@ -70,10 +76,17 @@ void draw(){
 
 //Avaterを生成する関数を作成
 void Avater(int x, int y) {
+  PShape[] Avater_list = {
+    Avater1,
+    Avater2,
+    Avater3,
+    Avater4
+  };
   pushMatrix();
+  fill(200, 0, 0);
   translate(x*road_w, y*road_w, -11);
-  shape(Avater1);
   lights();
+  shape(Avater_list[road_map[x][y]-2]);
   popMatrix();
 }
 
@@ -82,22 +95,22 @@ void clientEvent(Client c) {
   String S_str = c.readString();
   println("C:"  + S_str);
   if (S_str != null) {
-    if (S_str.substring(0, 2).equals(C_id)) { // 対象クライアントIDが自分のIDと等しいとき 
+    if (S_str.substring(0, 3).equals(C_id)) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
         for (int y = 2; y < board_y-2; y++) {
           road_map[x][y] = 0;
         }
       }
-      for (int i = 0; i < (S_str.length()-2) / 6; i++) { // 他ユーザーの座標を取得
-        String id = S_str.substring(6 * i + 2, 6 * i + 4);
-        int x = int(S_str.substring(6 * i + 4, 6 * i + 6));
-        int y = int(S_str.substring(6 * i + 6, 6 * i + 8));
+      for (int i = 0; i < (S_str.length()-2) / 7; i++) { // 他ユーザーの座標を取得
+        String id = S_str.substring(6 * i + 2, 6 * i + 5);
+        int x = int(S_str.substring(6 * i + 5, 6 * i + 7));
+        int y = int(S_str.substring(6 * i + 7, 6 * i + 9));
         if (!id.equals(C_id)) {
-          road_map[x][y] = 2;
+          road_map[x][y] = 2 + int(id.substring(2));
         }
       }
-    } else if (C_id == "00") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
-      if (S_str.length() == 2) {
+    } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
+      if (S_str.length() == 3) {
          C_id = S_str;
          id_exist = true;
       }
@@ -248,7 +261,7 @@ void draw_maze3D() {
                 box(road_w, road_w, 1);
                 popMatrix();
             }
-            if (road_map[x][y] == 2) {
+            if (road_map[x][y] >= 2) {
                 Avater(x, y);
             }
         }
