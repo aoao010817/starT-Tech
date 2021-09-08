@@ -32,7 +32,7 @@ void setup() {
     init_maze();
     smooth(); // 描画を滑らかに
     particleSystem = new ArrayList<ParticleSystem>();
-    Avater1 = loadShape("../Avater/Avater1.obj");
+    Avater1 = loadShape("../Avater/Avater1.obj"); //Avaterの読み込み
 }
 
 void draw(){
@@ -66,6 +66,12 @@ void draw(){
     }
     client.write(C_str);
   }
+}
+
+//Avaterを生成する関数を作成
+void Avater() {
+  shape(Avater1);
+  lights();
 }
 
 // サーバーからメッセージを受け取った際に実行
@@ -187,6 +193,7 @@ void init_maze() {
 
 // 描画関数
 void draw_maze3D() {
+  road_map[10][10] = 2;
     colorMode(RGB, 255, 255, 255); // RGBでの色指定モード
     background(20); //空の色
     stroke(0);
@@ -229,8 +236,7 @@ void draw_maze3D() {
             
             if (road_map[x][y] == 2) {
                 translate(x*road_w, y*road_w, -11);
-                shape(Avater1);
-                lights();
+                Avater();
             }
         }
     }
