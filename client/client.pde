@@ -1,9 +1,9 @@
 import processing.net.*;
 Client client;
-PVector gravity = new PVector(0, 0.1); //重力のようなもの
+PVector gravity = new PVector(0, 0.05, -0.1); //重力のようなもの
 ArrayList<ParticleSystem> particleSystem; //花火の情報
-float[] fire_posx = {0, 680}; //花火のx軸調整
-float[] fire_posy = {0, 510}; //花火のy軸調整
+float[] fire_posx = {0, 510 ,680}; //花火の位置調整
+int ran = 0;
 
 int board_x = 0;// ボードサイズ
 int board_y = 0;
@@ -35,8 +35,8 @@ void setup() {
 
 void draw(){
     draw_maze3D();
-    if (random(1) < 0.05) {
-    particleSystem.add(new ParticleSystem());
+    if (random(1) < 0.3) {
+        particleSystem.add(new ParticleSystem());
     }
     for (int i = particleSystem.size()-1; i >= 0; i--) {
       ParticleSystem ps = particleSystem.get(i);
@@ -176,8 +176,8 @@ void init_maze() {
 
 // 描画関数
 void draw_maze3D() {
-    colorMode(RGB, 255, 255, 255);
-    background(20);
+    colorMode(RGB, 255, 255, 255); // RGBでの色指定モード
+    background(20); //空の色
     stroke(0);
     float r = float(move_count)/float(move_time-1);
     perspective(radians(100), float(width)/float(height), 1, 800);
@@ -297,7 +297,7 @@ class Particle {
     if (life < 0) {
       return true;
     }
-    return false;
+      return false;
   }
   boolean explode() {
     if (seed && vel.y > 0) {
@@ -314,10 +314,23 @@ class ParticleSystem {
   float hue;
   ParticleSystem() {
     hue = random(360);
-    p = new Particle(random(0,120)+fire_posx[int(random(2))], random(0,90)+fire_posy[int(random(2))], hue);
+    switch (int(random(4))){
+      case 0:
+        p = new Particle(random(0,72), random(0,480), hue);
+        break;
+      case 1:
+        p = new Particle(random(72,408), random(0,72), hue);
+        break;
+      case 2:
+        p = new Particle(random(408,480), random(0,480), hue);
+        break;
+      case 3:
+        p = new Particle(random(72,408), random(408,480), hue);
+        break;
+    }
     particles = new ArrayList<Particle>();
   }
-  boolean done() {
+  boolean done(){
     if (p == null && particles.isEmpty()) {
       return true;
     } else {
