@@ -24,6 +24,7 @@ PShape Avater1;
 PShape Avater2;
 PShape Avater3;
 PShape Avater4;
+PShape Yagura;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false;
@@ -40,6 +41,7 @@ void setup() {
     Avater2 = loadShape("../Avater2/Avater2.obj");
     Avater3 = loadShape("../Avater3/Avater3.obj");
     Avater4 = loadShape("../Avater4/Avater4.obj");
+    Yagura = loadShape("../Yagura/Yagura.obj");
 }
 
 void draw(){
@@ -87,6 +89,14 @@ void Avater(int x, int y, int num) {
   translate(x*road_w, y*road_w, -11);
   lights();
   shape(Avater_list[num-2]);
+  popMatrix();
+}
+
+void Yagura() {
+  pushMatrix();
+  translate((board_x-2)*road_w/2, (board_y-2)*road_w/2, -11);
+  lights();
+  shape(Yagura);
   popMatrix();
 }
 
@@ -276,6 +286,7 @@ void draw_maze3D() {
       on_turn = false;
       move_count = 0;
     }
+    Yagura();
   }
 }
 
