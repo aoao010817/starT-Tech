@@ -43,7 +43,7 @@ void draw() {
         }
       }
       coordinates[i-1][2]++;
-      if (coordinates[i-1][2] > client_num*5) {
+      if (coordinates[i-1][2] > (client_num-delete_num)*5) {
         coordinates[i-1][0] = 0;
         coordinates[i-1][1] = 0;
         coordinates[i-1][2] = 0;
