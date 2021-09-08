@@ -20,7 +20,7 @@ boolean on_turn = false;
 int move_time = 10; // アニメーションの描画時間(ms)
 int move_count = 0;
 String C_id = "00"; // 自分のクライアントID
-PShape Avater1;
+PShape Avater1; //
 
 void setup() {
     size(800, 600, P3D);
@@ -30,7 +30,7 @@ void setup() {
     init_maze();
     smooth(); // 描画を滑らかに
     particleSystem = new ArrayList<ParticleSystem>();
-    Avater1 = loadShape("../Avater/Avater1.obj");
+    Avater1 = loadShape("../Avater/Avater1.obj"); //Avaterの読み込み
 }
 
 void draw(){
@@ -45,6 +45,12 @@ void draw(){
         particleSystem.remove(ps);
       }
     }
+}
+
+//Avaterを生成する関数を作成
+void Avater() {
+  shape(Avater1);
+  lights();
 }
 
 // サーバーからメッセージを受け取った際に実行
@@ -217,8 +223,7 @@ void draw_maze3D() {
             pushMatrix();
             if (road_map[x][y] == 2) {
                 translate(x*road_w, y*road_w, -11);
-                shape(Avater1);
-                lights();
+                Avater();
             }
             popMatrix();
         }
