@@ -1,9 +1,7 @@
 import processing.net.*;
 Client client;
-PVector gravity = new PVector(0, 0.1); //重力のようなもの
+PVector gravity = new PVector(0.05, 0.05, -0.1); //重力のようなもの
 ArrayList<ParticleSystem> particleSystem; //花火の情報
-float[] fire_posx = {0, 680}; //花火のx軸調整
-float[] fire_posy = {0, 510}; //花火のy軸調整
 
 int board_x = 0;// ボードサイズ
 int board_y = 0;
@@ -22,6 +20,7 @@ boolean on_turn = false;
 int move_time = 10; // アニメーションの描画時間(ms)
 int move_count = 0;
 String C_id = "00"; // 自分のクライアントID
+PShape Avater1;
 
 void setup() {
     size(800, 600, P3D);
@@ -31,12 +30,13 @@ void setup() {
     init_maze();
     smooth(); // 描画を滑らかに
     particleSystem = new ArrayList<ParticleSystem>();
+    Avater1 = loadShape("../Avater/Avater1.obj");
 }
 
 void draw(){
     draw_maze3D();
-    if (random(1) < 0.05) {
-    particleSystem.add(new ParticleSystem());
+    if (random(1) < 0.3) {
+        particleSystem.add(new ParticleSystem());
     }
     for (int i = particleSystem.size()-1; i >= 0; i--) {
       ParticleSystem ps = particleSystem.get(i);
@@ -176,8 +176,8 @@ void init_maze() {
 
 // 描画関数
 void draw_maze3D() {
-    colorMode(RGB, 255, 255, 255);
-    background(20);
+    colorMode(RGB, 255, 255, 255); // RGBでの色指定モード
+    background(20); //空の色
     stroke(0);
     float r = float(move_count)/float(move_time-1);
     perspective(radians(100), float(width)/float(height), 1, 800);
@@ -216,9 +216,9 @@ void draw_maze3D() {
             
             pushMatrix();
             if (road_map[x][y] == 2) {
-                fill(200, 200, 200);
-                translate(x*road_w, y*road_w, -road_w*0.1);
-                box(road_w*0.8);
+                translate(x*road_w, y*road_w, -11);
+                shape(Avater1);
+                lights();
             }
             popMatrix();
         }
@@ -297,7 +297,7 @@ class Particle {
     if (life < 0) {
       return true;
     }
-    return false;
+      return false;
   }
   boolean explode() {
     if (seed && vel.y > 0) {
@@ -314,10 +314,23 @@ class ParticleSystem {
   float hue;
   ParticleSystem() {
     hue = random(360);
-    p = new Particle(random(0,120)+fire_posx[int(random(2))], random(0,90)+fire_posy[int(random(2))], hue);
+    switch (int(random(4))){
+      case 0:
+        p = new Particle(random(0,120), random(0,600), hue);
+        break;
+      case 1:
+        p = new Particle(random(120,680), random(0,90), hue);
+        break;
+      case 2:
+        p = new Particle(random(120,680), random(510,600), hue);
+        break;
+      case 3:
+        p = new Particle(random(680,800), random(0,600), hue);
+        break;
+    }
     particles = new ArrayList<Particle>();
   }
-  boolean done() {
+  boolean done(){
     if (p == null && particles.isEmpty()) {
       return true;
     } else {
