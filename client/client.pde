@@ -73,7 +73,7 @@ void Avater() {
   pushMatrix();
   shape(Avater1);
   lights();
-  pushMatrix();
+  popMatrix();
 }
 
 // サーバーからメッセージを受け取った際に実行
