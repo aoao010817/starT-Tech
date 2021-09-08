@@ -24,7 +24,7 @@ String C_id = "00";
 
 void setup() {
     size(800, 600, P3D);
-    client = new Client(this, "192.168.86.31", 5024);
+    client = new Client(this, "153.122.191.29", 5024);
     make_board(15, 15, 32);
     init_maze();
 }
@@ -35,6 +35,7 @@ void draw(){
 
 void clientEvent(Client c) {
     String S_str = c.readString();
+    println(S_str);
     if (S_str != null) {
         if (C_id == "00") {
             C_id = S_str.substring(0, 2);

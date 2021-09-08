@@ -46,7 +46,6 @@ void draw() {
                 S_str += str(coordinates[i-1][1]);
             }
         }
-        println(S_str);
         server.write(S_str);
     }
 }
