@@ -61,6 +61,10 @@ void draw() {
     //         (対象クライアントID(2桁) + X座標(2桁) + Y座標(2桁)) ＊ユーザー数繰り返し
     server.write(S_str);
   }
+  if (client_num > 95) {
+    client_num = 0;
+    delete_num = 0;
+  }
 }
 
 // 新しいクライアントの接続があったときに実行
