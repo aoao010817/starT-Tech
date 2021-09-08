@@ -1,31 +1,29 @@
 import processing.net.*;
 Client client;
 
-int board_x = 0;
+int board_x = 0;// ボードサイズ
 int board_y = 0;
-int road_w = 0;
-int[][] road_map;
-int piece_x = 0;
-int piece_y = 0;
-float piece_size = 0;
-int[] dir_x = {1, 0, -1, 0};
+int road_w = 0;// ボード1マスのサイズ
+int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2:他ユーザー)
+int piece_x = 0;// 自アバターの座標
+int piece_y = 0; 
+int[] dir_x = {1, 0, -1, 0}; //進行方向と座標の関係を保持
 int[] dir_y = {0, 1, 0, -1};
-int piece_dir = 0;
-int[] route_dir;
-int trace_step = 0;
-int piece_xprev = 0;
+int piece_dir = 0;// 自アバターの向き
+int piece_xprev = 0; // 一つ前の情報を保持
 int piece_yprev = 0;
 int piece_dirprev = 0 ;
 boolean on_move = false;
 boolean on_turn = false;
-int move_time = 10;
+int move_time = 10; // アニメーションの描画時間(ms)
 int move_count = 0;
-String C_id = "00";
+String C_id = "00"; // 自分のクライアントID
 
 void setup() {
     size(800, 600, P3D);
     client = new Client(this, "153.122.191.29", 5024);
-    make_board(15, 15, 32);
+    // client = new Client(this, "153.122.191.29", 5024);
+    make_board(20, 20, 24);
     init_maze();
 }
 
@@ -33,9 +31,10 @@ void draw(){
     draw_maze3D();
 }
 
+// サーバーからメッセージを受け取った際に実行
 void clientEvent(Client c) {
     String S_str = c.readString();
-    println(S_str);
+    println("C:"  + S_str);
     if (S_str != null) {
         if (C_id == "00") {
             C_id = S_str.substring(0, 2);
@@ -49,8 +48,6 @@ void clientEvent(Client c) {
             String id = S_str.substring(6 * i + 2, 6 * i + 4);
             int x = int(S_str.substring(6 * i + 4, 6 * i + 6));
             int y = int(S_str.substring(6 * i + 6, 6 * i + 8));
-            println(id);
-            println(C_id);
             if (!id.equals(C_id)) {
                 road_map[x][y] = 2;
             }
@@ -113,6 +110,7 @@ void keyPressed() {
         on_turn = true;
     }
     
+    // format: クライアントID(2桁) + X座標(2桁) + Y座標(2桁) 
     String C_str = C_id;
     if (piece_x < 10) {
       C_str += "0" + str(piece_x);
@@ -127,6 +125,10 @@ void keyPressed() {
     client.write(C_str);
 }
 
+// ボード初期化関数
+// int x: ボードのX方向の大きさ
+// int y: ボードのY方向の大きさ
+// int w: 1マスの大きさ
 void make_board(int x, int y, int w) {
     board_x = x+4;
     board_y = y+4;
@@ -139,6 +141,7 @@ void make_board(int x, int y, int w) {
     }
 }
 
+// ボード、座標初期化関数
 void init_maze() {
     for (int x = 0; x < board_x; x++) {
         for (int y = 0; y < board_y; y++) {
@@ -152,12 +155,12 @@ void init_maze() {
     }
     piece_x = int(random(3, board_x-3));
     piece_y = int(random(3, board_y-3));
-    piece_size = 0.8*road_w;
     piece_dir = 0;
 }
 
+// 描画関数
 void draw_maze3D() {
-    background(100);
+    background(20);
     stroke(0);
     float r = float(move_count)/float(move_time-1);
     perspective(radians(100), float(width)/float(height), 1, 800);
@@ -185,15 +188,20 @@ void draw_maze3D() {
             } else if (road_map[x][y] == 1) {
                 fill(30, 30, 30);
             } else if (road_map[x][y] == 2) {
-                fill(200, 200, 0);
+                fill(30, 30, 30);
             }
+            
             pushMatrix();
-            if (road_map[x][y] == 1) {
-                translate(x*road_w, y*road_w, 0);
-                box(road_w);
-            } else {
-                translate(x*road_w, y*road_w, -road_w/2);
-                box(road_w, road_w, 1);
+            fill(255, 255, 255);
+            translate(x*road_w, y*road_w, -road_w/2);
+            box(road_w, road_w, 1);
+            popMatrix();
+            
+            pushMatrix();
+            if (road_map[x][y] == 2) {
+                fill(200, 200, 200);
+                translate(x*road_w, y*road_w, -road_w*0.1);
+                box(road_w*0.8);
             }
             popMatrix();
         }
@@ -207,11 +215,3 @@ void draw_maze3D() {
         }
     }
 }
-
-//void DrawAvatar(int x, int y) {
-//  fill(255, 255, 255);
-//  pushMatrix();
-//  translate(5*road_w, 5*road_w, 0);
-//  box(road_w);
-//  popMatrix();
-//}

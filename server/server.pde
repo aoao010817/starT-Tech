@@ -2,8 +2,8 @@ import processing.net.*;
 
 Server server;
 
-int client_num = 0;
-int[][] coordinates = new int[50][2];
+int client_num = 0;// クライアント数を保持
+int[][] coordinates = new int[50][2];// 各クライアントの座標を保持
 
 void setup() {
   server = new Server(this, 5024);
@@ -46,6 +46,8 @@ void draw() {
                 S_str += str(coordinates[i-1][1]);
             }
         }
+        // format: 受信したクライアントID(2桁) + 
+        //         (クライアントID(2桁) + X座標(2桁) + Y座標(2桁)) ＊ユーザー数繰り返し
         server.write(S_str);
     }
 }
