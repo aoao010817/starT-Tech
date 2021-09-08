@@ -1,7 +1,7 @@
 import processing.net.*;
 Client client;
-PVector gravity = new PVector(0, 0.1);
-ArrayList<ParticleSystem> particleSystem;
+PVector gravity = new PVector(0, 0.1); //重力のようなもの
+ArrayList<ParticleSystem> particleSystem; //花火の情報
 
 int board_x = 0;// ボードサイズ
 int board_y = 0;
@@ -268,10 +268,7 @@ class Particle {
       vel.mult(0.98);
     }
     acc.mult(0);
-    if (pos.y > height) {
-      pos = new PVector(random(-width/2, width/2), height, random(-500, 500));
-      vel = new PVector(0, 0, random(-12, -8));
-    }
+    
   }
   void draw() {
     stroke(c, life);
