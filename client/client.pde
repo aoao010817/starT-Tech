@@ -31,7 +31,7 @@ String tmp = "";
 
 void setup() {
     size(800, 600, P3D);
-    // client = new Client(this, "153.122.191.29", 5024);
+     client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -94,7 +94,7 @@ void Avater(int x, int y) {
 // サーバーからメッセージを受け取った際に実行
 void clientEvent(Client c) {
   String S_str = c.readString();
-  println("C:"  + S_str);
+  println("C:" + S_str);
   if (S_str != null) {
     if (S_str.substring(0, 3).equals(C_id)) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
@@ -102,10 +102,10 @@ void clientEvent(Client c) {
           road_map[x][y] = 0;
         }
       }
-      for (int i = 0; i < (S_str.length()-2) / 7; i++) { // 他ユーザーの座標を取得
-        String id = S_str.substring(6 * i + 2, 6 * i + 5);
-        int x = int(S_str.substring(6 * i + 5, 6 * i + 7));
-        int y = int(S_str.substring(6 * i + 7, 6 * i + 9));
+      for (int i = 0; i < (S_str.length()-3) / 7; i++) { // 他ユーザーの座標を取得
+        String id = S_str.substring(7 * i + 3, 7 * i + 6);
+        int x = int(S_str.substring(7 * i + 6, 7 * i + 8));
+        int y = int(S_str.substring(7 * i + 8, 7 * i + 10));
         if (!id.equals(C_id)) {
           road_map[x][y] = 2 + int(id.substring(2));
         }
@@ -174,7 +174,7 @@ void keyPressed() {
         on_turn = true;
     }
     // コメント入力
-    println("key pressed key=" + key + ",keyCode=" + keyCode);
+    //println("key pressed key=" + key + ",keyCode=" + keyCode);
     if (keyCode == 47) {
         keyFlag = true;
     }
