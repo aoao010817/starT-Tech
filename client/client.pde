@@ -70,8 +70,10 @@ void draw(){
 
 //Avaterを生成する関数を作成
 void Avater() {
+  pushMatrix();
   shape(Avater1);
   lights();
+  pushMatrix();
 }
 
 // サーバーからメッセージを受け取った際に実行
@@ -193,7 +195,6 @@ void init_maze() {
 
 // 描画関数
 void draw_maze3D() {
-  road_map[10][10] = 2;
     colorMode(RGB, 255, 255, 255); // RGBでの色指定モード
     background(20); //空の色
     stroke(0);
@@ -218,14 +219,6 @@ void draw_maze3D() {
     }
     for (int x = 2; x < board_x-2; x++) {
         for (int y = 2; y < board_y-2; y++) {
-            if (road_map[x][y] == 0) {
-                fill(0, 0, 0);
-            } else if (road_map[x][y] == 1) {
-                fill(30, 30, 30);
-            } else if (road_map[x][y] == 2) {
-                fill(30, 30, 30);
-            }
-            
             if (road_map[x][y] != 1) {
                 pushMatrix();
                 fill(255, 255, 255);
@@ -233,7 +226,6 @@ void draw_maze3D() {
                 box(road_w, road_w, 1);
                 popMatrix();
             }
-            
             if (road_map[x][y] == 2) {
                 translate(x*road_w, y*road_w, -11);
                 Avater();
