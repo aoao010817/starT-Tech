@@ -200,32 +200,32 @@ void keyPressed() {
 // int y: ボードのY方向の大きさ
 // int w: 1マスの大きさ
 void make_board(int x, int y, int w) {
-    board_x = x+2;
-    board_y = y+2;
-    road_w = w;
-    road_map = new int[board_x][board_y];
-    for (int i = 0; i < board_y; i++) {
-        for (int j = 0; j < board_x; j++) {
-            road_map[j][i] = 0;
-        }
+  board_x = x+2;
+  board_y = y+2;
+  road_w = w;
+  road_map = new int[board_x][board_y];
+  for (int i = 0; i < board_y; i++) {
+    for (int j = 0; j < board_x; j++) {
+      road_map[j][i] = 0;
     }
+  }
 }
 
 // ボード、座標初期化関数
 void init_maze() {
-    for (int x = 0; x < board_x; x++) {
-        for (int y = 0; y < board_y; y++) {
-            road_map[x][y] = 1;
-        }
+  for (int x = 0; x < board_x; x++) {
+    for (int y = 0; y < board_y; y++) {
+      road_map[x][y] = 1;
     }
-    for (int x = 2; x < board_x-2; x++) {
-        for (int y = 2; y < board_y-2; y++) {
-            road_map[x][y] = 0;
-        }
+  }
+  for (int x = 2; x < board_x-2; x++) {
+    for (int y = 2; y < board_y-2; y++) {
+      road_map[x][y] = 0;
     }
-    piece_x = int(random(4, board_x-4));
-    piece_y = int(random(4, board_y-4));
-    piece_dir = 0;
+  }
+  piece_x = int(random(4, board_x-4));
+  piece_y = int(random(4, board_y-4));
+  piece_dir = 0;
 }
 
 // 描画関数
