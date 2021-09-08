@@ -31,7 +31,7 @@ String tmp = "";
 
 void setup() {
     size(800, 600, P3D);
-    client = new Client(this, "153.122.191.29", 5024);
+    // client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -57,7 +57,7 @@ void draw(){
   
   request_count++;
   if (request_count >= 12 && id_exist) {
-    request_count = 0
+    request_count = 0;
     // format: クライアントID(2桁) + X座標(2桁) + Y座標(2桁) 
     String C_str = C_id;
     if (piece_x < 10) {
@@ -180,7 +180,7 @@ void keyPressed() {
     else if (keyCode == 10) {
         keyFlag = false;
         println("入力:" + tmp);
-        client.write("str"+tmp);
+        // client.write("str"+tmp);
         tmp = "";
     }
     if (keyFlag){
