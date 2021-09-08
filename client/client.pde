@@ -1,9 +1,7 @@
 import processing.net.*;
 Client client;
-PVector gravity = new PVector(0, 0.05, -0.1); //重力のようなもの
+PVector gravity = new PVector(0.05, 0.05, -0.1); //重力のようなもの
 ArrayList<ParticleSystem> particleSystem; //花火の情報
-float[] fire_posx = {0, 510 ,680}; //花火の位置調整
-int ran = 0;
 
 int board_x = 0;// ボードサイズ
 int board_y = 0;
@@ -316,16 +314,16 @@ class ParticleSystem {
     hue = random(360);
     switch (int(random(4))){
       case 0:
-        p = new Particle(random(0,72), random(0,480), hue);
+        p = new Particle(random(0,120), random(0,600), hue);
         break;
       case 1:
-        p = new Particle(random(72,408), random(0,72), hue);
+        p = new Particle(random(120,680), random(0,90), hue);
         break;
       case 2:
-        p = new Particle(random(408,480), random(0,480), hue);
+        p = new Particle(random(120,680), random(510,600), hue);
         break;
       case 3:
-        p = new Particle(random(72,408), random(408,480), hue);
+        p = new Particle(random(680,800), random(0,600), hue);
         break;
     }
     particles = new ArrayList<Particle>();
