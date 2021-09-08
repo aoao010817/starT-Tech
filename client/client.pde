@@ -105,7 +105,7 @@ void clientEvent(Client c) {
   String S_str = c.readString();
   println("C:" + S_str);
   if (S_str != null) {
-    if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)/7 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
+    if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%7 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
         for (int y = 2; y < board_y-2; y++) {
           road_map[x][y] = 0;
