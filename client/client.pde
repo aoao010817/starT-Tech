@@ -268,7 +268,7 @@ class Particle {
       vel.mult(0.98);
     }
     acc.mult(0);
-    if (pos.y > height) {
+    if (pos.z > height) {
       pos = new PVector(random(-width/2, width/2), height, random(-500, 500));
       vel = new PVector(0, 0, random(-12, -8));
     }
