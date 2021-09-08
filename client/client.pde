@@ -32,7 +32,7 @@ String tmp = "";
 
 void setup() {
     size(800, 600, P3D);
-     client = new Client(this, "153.122.191.29", 5024);
+    //client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -118,7 +118,6 @@ void clientEvent(Client c) {
         int y = int(S_str.substring(7 * i + 8, 7 * i + 10));
         if (!id.equals(C_id)) {
           road_map[x][y] = 2 + int(id.substring(2));
-          println(2 + int(id.substring(2)));
         }
       }
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
@@ -185,7 +184,7 @@ void keyPressed() {
         on_turn = true;
     }
     // コメント入力
-    //println("key pressed key=" + key + ",keyCode=" + keyCode);
+    println("key pressed key=" + key + ",keyCode=" + keyCode);
     if (keyCode == 47) {
         keyFlag = true;
     }
@@ -196,15 +195,17 @@ void keyPressed() {
         tmp = "";
     }
     if (keyFlag){
-      if (keyCode == 8) { // backspace.
-        if (tmp.length() >= 1) {
-        tmp = tmp.substring(0, tmp.length()-1);
+      if (keyCode != 37 && keyCode != 38 && keyCode != 39 && keyCode != 40){
+        if (keyCode == 8) { // backspace.
+          if (tmp.length() >= 1) {
+          tmp = tmp.substring(0, tmp.length()-1);
+          }
+        } else if(keyCode != 47) {
+          tmp += key;
+          println("現在:"+tmp);
         }
-    } else if(keyCode != 47) {
-      tmp += key;
-      println("現在:"+tmp);
-    }
-  }
+     }
+   }
 }
 
 // ボード初期化関数
@@ -285,6 +286,17 @@ void draw_maze3D() {
       on_move = false;
       on_turn = false;
       move_count = 0;
+    }
+    if (keyFlag){
+      pushMatrix();
+      camera();
+      hint(DISABLE_DEPTH_TEST);
+      noLights();
+      textMode(MODEL);
+      fill(100);
+      text(tmp, 550, 750);
+      hint(ENABLE_DEPTH_TEST);
+      popMatrix();
     }
   }
   Yagura();
