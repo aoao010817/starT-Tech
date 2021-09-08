@@ -30,6 +30,7 @@ void draw() {
     } else if (C_id >= 10) {
       S_str = str(C_id);
     }
+    S_str += avater_num;
     coordinates[int(C_id)-1][0] = piece_x;
     coordinates[int(C_id)-1][1] = piece_y;
     coordinates[int(C_id)-1][2] -= client_num;

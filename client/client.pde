@@ -101,12 +101,13 @@ void clientEvent(Client c) {
           road_map[x][y] = 0;
         }
       }
-      for (int i = 0; i < (S_str.length()-2) / 7; i++) { // 他ユーザーの座標を取得
+      for (int i = 0; i < (S_str.length()-3) / 7; i++) { // 他ユーザーの座標を取得
         String id = S_str.substring(6 * i + 2, 6 * i + 5);
         int x = int(S_str.substring(6 * i + 5, 6 * i + 7));
         int y = int(S_str.substring(6 * i + 7, 6 * i + 9));
         if (!id.equals(C_id)) {
           road_map[x][y] = 2 + int(id.substring(2));
+          println(2 + int(id.substring(2)));
         }
       }
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
