@@ -58,7 +58,8 @@ void draw(){
   request_count++;
   if (request_count >= 12 && id_exist) {
     request_count = 0;
-    // format: クライアントID(2桁) + X座標(2桁) + Y座標(2桁) 
+    // format: クライアントID(3桁) + X座標(2桁) + Y座標(2桁) 
+
     String C_str = C_id;
     if (piece_x < 10) {
       C_str += "0" + str(piece_x);
