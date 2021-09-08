@@ -91,7 +91,7 @@ void Avater(int x, int y, int num) {
   pushMatrix();
   translate(x*road_w, y*road_w, -11);
   lights();
-  rotateY(PI/2 * avater_dir);
+  rotateZ(PI/2 * avater_dir);
   shape(Avater_list[avater_num]);
   popMatrix();
 }
