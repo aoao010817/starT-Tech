@@ -1,5 +1,7 @@
 import processing.net.*;
 Client client;
+PVector gravity = new PVector(0, 0.1);
+ArrayList<ParticleSystem> particleSystem;
 
 int board_x = 0;// ボードサイズ
 int board_y = 0;
@@ -25,10 +27,23 @@ void setup() {
     // client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
+    colorMode(HSB, 360, 100, 100, 100); // HSBでの色指定にする
+    smooth(); // 描画を滑らかに
+    particleSystem = new ArrayList<ParticleSystem>();
 }
 
 void draw(){
     draw_maze3D();
+    if (random(1) < 0.05) {
+    particleSystem.add(new ParticleSystem());
+    }
+    for (int i = particleSystem.size()-1; i >= 0; i--) {
+      ParticleSystem ps = particleSystem.get(i);
+      ps.run();
+      if (ps.done()) {
+        particleSystem.remove(ps);
+      }
+    }
 }
 
 // サーバーからメッセージを受け取った際に実行
@@ -214,4 +229,115 @@ void draw_maze3D() {
             move_count = 0;
         }
     }
+}
+
+//以下花火
+class Particle {
+  PVector pos;
+  PVector vel;
+  PVector acc;
+  float life = 100;
+  float lifeSpan = random(life/50, life/30);
+  boolean seed = false;
+  color c;
+  Particle() {
+    pos = new PVector(random(0,800), random(0,600), 0);
+    vel = new PVector(0, 0, random(-12, -6));
+    acc = new PVector(0, 0, 0.1);
+    c = color(random(360), 80, 100);
+  }
+  Particle(float x, float y, float hue) {
+    pos = new PVector(x, y, random(-500, 500));
+    vel = new PVector(0, 0, random(-12, -6));
+    acc = new PVector(0, 0, 0.1);
+    c = color(hue, 80, 100);
+    seed = true;
+  }
+  Particle(PVector _pos, float hue) {
+    pos = new PVector(_pos.x, _pos.y, _pos.z);
+    vel = PVector.random3D();
+    vel.mult(random(4, 6));
+    acc = new PVector(0, 0, 0.1);
+    c = color(hue, 80, 100);
+  }
+  void update() {
+    pos.add(vel);
+    vel.add(acc);
+    if (!seed) {
+      life -= lifeSpan;
+      vel.mult(0.98);
+    }
+    acc.mult(0);
+    if (pos.y > height) {
+      pos = new PVector(random(-width/2, width/2), height, random(-500, 500));
+      vel = new PVector(0, 0, random(-12, -8));
+    }
+  }
+  void draw() {
+    stroke(c, life);
+    strokeWeight(4);
+    pushMatrix();
+    translate(pos.x, pos.y, pos.z);
+    point(0, 0, 0);
+    popMatrix();
+  }
+  void applyForce(PVector force) {
+    acc.add(force);
+  }
+  void run() {
+    update();
+    draw();
+  }
+  boolean isDead() {
+    if (life < 0) {
+      return true;
+    }
+    return false;
+  }
+  boolean explode() {
+    if (seed && vel.y > 0) {
+      lifeSpan = 0;
+      return true;
+    }
+    return false;
+  }
+}
+
+class ParticleSystem {
+  ArrayList<Particle> particles;
+  Particle p;
+  float hue;
+  ParticleSystem() {
+    hue = random(360);
+    p = new Particle(random(-width/2, width/2), height, hue);
+    particles = new ArrayList<Particle>();
+  }
+  boolean done() {
+    if (p == null && particles.isEmpty()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  void run() {
+    if (p != null) {
+      p.applyForce(gravity);
+      p.update();
+      p.draw();
+      if (p.explode()) {
+        for (int i = 0; i < 100; i++) {
+          particles.add(new Particle(p.pos, hue));
+        }
+        p = null;
+      }
+    }
+    for (int i = particles.size()-1; i >= 0; i--) {
+      Particle child = particles.get(i);
+      child.applyForce(gravity);
+      child.run();
+      if (child.isDead()) {
+        particles.remove(child);
+      }
+    }
+  }
 }
