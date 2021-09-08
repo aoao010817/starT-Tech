@@ -23,8 +23,8 @@ String C_id = "00"; // 自分のクライアントID
 
 void setup() {
     size(800, 600, P3D);
-    client = new Client(this, "153.122.191.29", 5024);
-    client = new Client(this, "153.122.191.29", 5024);
+    client = new Client(this, "", 5024);
+    //client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -43,6 +43,10 @@ void draw(){
         particleSystem.remove(ps);
       }
     }
+}
+
+void exit() {
+  println("exit.");
 }
 
 // サーバーからメッセージを受け取った際に実行
