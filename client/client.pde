@@ -286,8 +286,8 @@ void draw_maze3D() {
       on_turn = false;
       move_count = 0;
     }
-    Yagura();
   }
+  Yagura();
 }
 
 //以下花火
