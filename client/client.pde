@@ -32,7 +32,7 @@ String tmp = "";
 
 void setup() {
     size(800, 600, P3D);
-    // client = new Client(this, "153.122.191.29", 5024);
+     client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -78,7 +78,7 @@ void draw(){
 }
 
 //Avaterを生成する関数を作成
-void Avater(int x, int y) {
+void Avater(int x, int y, int num) {
   PShape[] Avater_list = {
     Avater1,
     Avater2,
@@ -86,10 +86,9 @@ void Avater(int x, int y) {
     Avater4
   };
   pushMatrix();
-  fill(200, 0, 0);
   translate(x*road_w, y*road_w, -11);
   lights();
-  shape(Avater_list[road_map[x][y]-2]);
+  shape(Avater_list[num-2]);
   popMatrix();
 }
 
@@ -104,7 +103,7 @@ void Yagura() {
 // サーバーからメッセージを受け取った際に実行
 void clientEvent(Client c) {
   String S_str = c.readString();
-  println("C:"  + S_str);
+  println("C:" + S_str);
   if (S_str != null) {
     if (S_str.substring(0, 3).equals(C_id)) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
@@ -112,12 +111,14 @@ void clientEvent(Client c) {
           road_map[x][y] = 0;
         }
       }
-      for (int i = 0; i < (S_str.length()-2) / 7; i++) { // 他ユーザーの座標を取得
-        String id = S_str.substring(6 * i + 2, 6 * i + 5);
-        int x = int(S_str.substring(6 * i + 5, 6 * i + 7));
-        int y = int(S_str.substring(6 * i + 7, 6 * i + 9));
+      for (int i = 0; i < (S_str.length()-3) / 7; i++) { // 他ユーザーの座標を取得
+
+        String id = S_str.substring(7 * i + 3, 7 * i + 6);
+        int x = int(S_str.substring(7 * i + 6, 7 * i + 8));
+        int y = int(S_str.substring(7 * i + 8, 7 * i + 10));
         if (!id.equals(C_id)) {
           road_map[x][y] = 2 + int(id.substring(2));
+          println(2 + int(id.substring(2)));
         }
       }
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
@@ -184,7 +185,7 @@ void keyPressed() {
         on_turn = true;
     }
     // コメント入力
-    println("key pressed key=" + key + ",keyCode=" + keyCode);
+    //println("key pressed key=" + key + ",keyCode=" + keyCode);
     if (keyCode == 47) {
         keyFlag = true;
     }
@@ -211,81 +212,82 @@ void keyPressed() {
 // int y: ボードのY方向の大きさ
 // int w: 1マスの大きさ
 void make_board(int x, int y, int w) {
-    board_x = x+2;
-    board_y = y+2;
-    road_w = w;
-    road_map = new int[board_x][board_y];
-    for (int i = 0; i < board_y; i++) {
-        for (int j = 0; j < board_x; j++) {
-            road_map[j][i] = 0;
-        }
+  board_x = x+2;
+  board_y = y+2;
+  road_w = w;
+  road_map = new int[board_x][board_y];
+  for (int i = 0; i < board_y; i++) {
+    for (int j = 0; j < board_x; j++) {
+      road_map[j][i] = 0;
     }
+  }
 }
 
 // ボード、座標初期化関数
 void init_maze() {
-    for (int x = 0; x < board_x; x++) {
-        for (int y = 0; y < board_y; y++) {
-            road_map[x][y] = 1;
-        }
+  for (int x = 0; x < board_x; x++) {
+    for (int y = 0; y < board_y; y++) {
+      road_map[x][y] = 1;
     }
-    for (int x = 2; x < board_x-2; x++) {
-        for (int y = 2; y < board_y-2; y++) {
-            road_map[x][y] = 0;
-        }
+  }
+  for (int x = 2; x < board_x-2; x++) {
+    for (int y = 2; y < board_y-2; y++) {
+      road_map[x][y] = 0;
     }
-    piece_x = int(random(4, board_x-4));
-    piece_y = int(random(4, board_y-4));
-    piece_dir = 0;
+  }
+  piece_x = int(random(4, board_x-4));
+  piece_y = int(random(4, board_y-4));
+  piece_dir = 0;
 }
 
 // 描画関数
 void draw_maze3D() {
-    colorMode(RGB, 255, 255, 255); // RGBでの色指定モード
-    background(20); //空の色
-    stroke(0);
-    float r = float(move_count)/float(move_time-1);
-    perspective(radians(100), float(width)/float(height), 1, 800);
-    if (on_turn) {
-        int f = 0;
-        if (piece_dir-piece_dirprev == 1 || piece_dir-piece_dirprev == -3) {
-            f = 1;
-        } else if (piece_dir-piece_dirprev == -1 || piece_dir-piece_dirprev == 3) {
-            f = -1;
-        }
-        float mdir_x = cos((piece_dirprev + r*f)*HALF_PI);
-        float mdir_y = sin((piece_dirprev + r*f)*HALF_PI);
-        camera(piece_x*road_w, piece_y*road_w, 0, (piece_x+mdir_x)*road_w, (piece_y+mdir_y)*road_w, 0, 0, 0, -1);
-    } else if (on_move) {
-        float m_x = piece_x - piece_xprev;
-        float m_y = piece_y - piece_yprev;
-        camera((piece_xprev+m_x*r)*road_w, (piece_yprev+m_y*r)*road_w, 0, (piece_x+dir_x[piece_dir])*road_w+dir_x[piece_dir], (piece_y+dir_y[piece_dir])*road_w+dir_y[piece_dir], 0, 0, 0, -1);
-    } else {
-        camera(piece_x*road_w, piece_y*road_w, 0, piece_x*road_w+dir_x[piece_dir], piece_y*road_w+dir_y[piece_dir], 0, 0, 0, -1);
+  colorMode(RGB, 255, 255, 255); // RGBでの色指定モード
+  background(20); //空の色
+  stroke(0);
+  float r = float(move_count)/float(move_time-1);
+  perspective(radians(100), float(width)/float(height), 1, 800);
+  if (on_turn) {
+    int f = 0;
+    if (piece_dir-piece_dirprev == 1 || piece_dir-piece_dirprev == -3) {
+      f = 1;
+    } else if (piece_dir-piece_dirprev == -1 || piece_dir-piece_dirprev == 3) {
+      f = -1;
     }
-    for (int x = 2; x < board_x-2; x++) {
-        for (int y = 2; y < board_y-2; y++) {
-            if (road_map[x][y] != 1) {
-                pushMatrix();
-                fill(255, 255, 255);
-                translate(x*road_w, y*road_w, -road_w/2);
-                box(road_w, road_w, 1);
-                popMatrix();
-            }
-            if (road_map[x][y] >= 2) {
-                Avater(x, y);
-            }
-        }
+    float mdir_x = cos((piece_dirprev + r*f)*HALF_PI);
+    float mdir_y = sin((piece_dirprev + r*f)*HALF_PI);
+    camera(piece_x*road_w, piece_y*road_w, 0, (piece_x+mdir_x)*road_w, (piece_y+mdir_y)*road_w, 0, 0, 0, -1);
+  } else if (on_move) {
+    float m_x = piece_x - piece_xprev;
+    float m_y = piece_y - piece_yprev;
+    camera((piece_xprev+m_x*r)*road_w, (piece_yprev+m_y*r)*road_w, 0, (piece_x+dir_x[piece_dir])*road_w+dir_x[piece_dir], (piece_y+dir_y[piece_dir])*road_w+dir_y[piece_dir], 0, 0, 0, -1);
+  } else {
+    camera(piece_x*road_w, piece_y*road_w, 0, piece_x*road_w+dir_x[piece_dir], piece_y*road_w+dir_y[piece_dir], 0, 0, 0, -1);
+  }
+  for (int x = 2; x < board_x-2; x++) {
+    for (int y = 2; y < board_y-2; y++) {
+      int status = road_map[x][y];
+      if (status != 1) {
+        pushMatrix();
+        fill(255, 255, 255);
+        translate(x*road_w, y*road_w, -road_w/2);
+        box(road_w, road_w, 1);
+        popMatrix();
+      }
+      if (status >= 2) {
+        Avater(x, y, status);
+      }
     }
-    if (on_turn || on_move) {
-        move_count++;
-        if (move_count == move_time) {
-            on_move = false;
-            on_turn = false;
-            move_count = 0;
-        }
+  }
+  if (on_turn || on_move) {
+    move_count++;
+    if (move_count == move_time) {
+      on_move = false;
+      on_turn = false;
+      move_count = 0;
     }
     Yagura();
+  }
 }
 
 //以下花火
