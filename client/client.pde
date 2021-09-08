@@ -69,8 +69,9 @@ void draw(){
 }
 
 //Avaterを生成する関数を作成
-void Avater() {
+void Avater(int x, int y) {
   pushMatrix();
+  translate(x*road_w, y*road_w, -11);
   shape(Avater1);
   lights();
   popMatrix();
@@ -227,8 +228,7 @@ void draw_maze3D() {
                 popMatrix();
             }
             if (road_map[x][y] == 2) {
-                translate(x*road_w, y*road_w, -11);
-                Avater();
+                Avater(x, y);
             }
         }
     }
