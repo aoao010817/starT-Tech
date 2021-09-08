@@ -32,7 +32,7 @@ String tmp = "";
 
 void setup() {
     size(800, 600, P3D);
-    //client = new Client(this, "153.122.191.29", 5024);
+    client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -275,7 +275,7 @@ void draw_maze3D() {
         box(road_w, road_w, 1);
         popMatrix();
       }
-      if (status >= 2) {
+      if (status >= 2 && status <= 5) {
         Avater(x, y, status);
       }
     }

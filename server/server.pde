@@ -43,7 +43,7 @@ void draw() {
         coordinates[i-1][2] = 0;
         coordinates[i-1][3] = 0;
         deletes[delete_num] = i;
-        delete_num++;
+        //delete_num++;
       }
       if (i < 10) {
         S_str += "0" + str(i);
