@@ -32,19 +32,13 @@ boolean keyFlag = false; //入力モードON/OFF
 boolean move = false; //出力モードON/OFF
 String tmp = ""; //入力した文字列を記録するもの
 String move_tmp = ""; //壁際に流す
-ArrayList<ArrayList<String>> comment_l = new ArrayList(); 
-String com = "";
-float com_x;
-float com_y;
-float com_z;
-float com_v;
 float text_result;
 ArrayList<String> del_com = new ArrayList();
 
 void setup() {
     size(1200, 900, P3D);
-    client = new Client(this, "153.122.191.29", 5024);
-    //client = new Client(this, "", 5024);
+    //client = new Client(this, "153.122.191.29", 5024);
+    client = new Client(this, "", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -537,7 +531,13 @@ void text_input(){
 }
 
 //テキストを動かす関数
-float text_move(int i, String move_tmp, float x, float y, float z, float v){
+void text_move(int num){
+  String comment = comments[num][0];
+  float x = float(comments[num][1]);
+  float y = -float(comments[num][2]);
+  float z = float(comments[num][3]);
+  float v = float(comments[num][4]);
+  println(comment);
   fill(255); //文字を白色に変える。
   pushMatrix();
   rotateX(-PI/2); //向き調整
@@ -546,33 +546,29 @@ float text_move(int i, String move_tmp, float x, float y, float z, float v){
     pushMatrix();
     translate(x,y,z);
     rotateY(PI/2);
-    text(move_tmp, 0, 0, 0);
+    text(comment, 0, 0, 0);//入力モード時の文字列を表示
     popMatrix();
-    z -= v;
+    comments[num][3] = str(z - v);
     popMatrix();
-    return z;
   }
   else if(z < 0 && x < 600){
     pushMatrix();
     translate(x,y,z);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    x += v;
+    comments[num][1] = str(x + v);
     popMatrix();
-    return x;
   }
   else if(z < 600 && x > 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(-PI/2);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    z += v;
+    comments[num][3] = str(z + v);
     popMatrix();
-    return z;
   }
   else {
     popMatrix();
-    return 0;
   }
 }
