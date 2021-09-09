@@ -36,7 +36,7 @@ float z = 600; //動いている文字のz軸
 float a = 0; //意味を成さない(実験用変数)
 
 void setup() {
-    size(800, 600, P3D);
+    size(1200, 900, P3D);
     // client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
@@ -112,7 +112,7 @@ void Yagura() {
 // サーバーからメッセージを受け取った際に実行
 void clientEvent(Client c) {
   String S_str = c.readString();
-  println("C:" + S_str);
+  //println("C:" + S_str);
   if (S_str != null) {
     if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%8 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
@@ -130,6 +130,8 @@ void clientEvent(Client c) {
           road_map[x][y] = 2 + int(id.substring(2))*4 + dir;
         }
       }
+    }else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
+      String comment = S_str.substring(3, S_str.length());
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -201,7 +203,7 @@ void keyPressed() {
     else if (keyCode == 10) {
         keyFlag = false; //Enterを押したら出力モード
         println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
-        // client.write("str"+tmp); //サーバーに文字列の情報を送る。
+        client.write("str"+tmp); //サーバーに文字列の情報を送る。
         move = true; //出力モードオン
         move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
         tmp = ""; //入力する文字列の初期化
