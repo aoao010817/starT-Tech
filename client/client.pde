@@ -39,7 +39,7 @@ float com_y;
 float com_z;
 float com_v;
 float text_result;
-int del_com[];
+ArrayList<String> del_com = new ArrayList();
 
 void setup() {
     size(1200, 900, P3D);
@@ -170,6 +170,7 @@ void clientEvent(Client c) {
       comment_l2.add("600.0");
       comment_l2.add(""+random(1,1.5));
       comment_l.add(comment_l2);
+      println(comment_l);
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -350,17 +351,26 @@ void draw_maze3D() {
     }
   }
   text_input();
-  if (comment_l.length > 0){
-    int c = 0;
-    for (int i = 0 ;i < comment_l.length; i++){
+  if (comment_l.size() > 0){
+    for (int i = 0 ;i < comment_l.size(); i++){
       com = comment_l.get(i).get(0);
       com_x = Float.valueOf(comment_l.get(i).get(1));
       com_y = Float.valueOf(comment_l.get(i).get(2)) - 100;
       com_z = Float.valueOf(comment_l.get(i).get(3));
       com_v = Float.valueOf(comment_l.get(i).get(4));
       text_result = text_move(i, com, com_x, com_y, com_z, com_v); //これを適当にfor とかで全コメントで回す
+      println(1);
       if (text_result != 0){
         com_y += 100;
+        if (com_z > 0 && com_x == 0){
+          com_z = text_result;
+        }
+        else if(com_z < 0 && com_x < 600){
+          com_x = text_result;
+        }
+        else if(com_z < 600 && com_x > 600){
+          com_z = text_result;
+        }
         ArrayList<String> comment3 = new ArrayList<String>(comment_l.get(i));
         comment3.set(0, com);
         comment3.set(1, ""+com_x);
@@ -369,15 +379,14 @@ void draw_maze3D() {
         comment_l.set(i, comment3);
       }
       else{
-        del_com[c] = i;
-        c++;
+        del_com.add(""+i);
       }
     }
-    if (del_com.length > 0){
-      for (int i = 0; i < del_com.length; i++){
-        comment_l.remove(del_com[i]);
+    if (del_com.size() > 0){
+      for (int i = 0; i < del_com.size(); i++){
+        comment_l.remove(del_com.get(i));
       }
-      int del_com[];
+      del_com.clear();
     }
   }
   Yagura();
@@ -533,7 +542,7 @@ float text_move(int i, String move_tmp, float x, float y, float z, float v){
   pushMatrix();
   rotateX(-PI/2); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  if (z != 0 && x != 600){
+  if (z > 0 && x == 0){
     pushMatrix();
     translate(x,y,z);
     rotateY(PI/2);
@@ -543,7 +552,7 @@ float text_move(int i, String move_tmp, float x, float y, float z, float v){
     popMatrix();
     return z;
   }
-  else if(x != 600){
+  else if(z < 0 && x < 600){
     pushMatrix();
     translate(x,y,z);
     text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
@@ -552,7 +561,7 @@ float text_move(int i, String move_tmp, float x, float y, float z, float v){
     popMatrix();
     return x;
   }
-  else if(z != 600){
+  else if(z < 600 && x > 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(-PI/2);
