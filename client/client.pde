@@ -32,13 +32,19 @@ boolean keyFlag = false; //入力モードON/OFF
 boolean move = false; //出力モードON/OFF
 String tmp = ""; //入力した文字列を記録するもの
 String move_tmp = ""; //壁際に流す
+ArrayList<ArrayList<String>> comment_l = new ArrayList(); 
+String com = "";
+float com_x;
+float com_y;
+float com_z;
+float com_v;
 float text_result;
-ArrayList<String> del_com = new ArrayList();
+int del_com[];
 
 void setup() {
     size(1200, 900, P3D);
-    //client = new Client(this, "153.122.191.29", 5024);
-    client = new Client(this, "", 5024);
+    client = new Client(this, "153.122.191.29", 5024);
+    //client = new Client(this, "", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -164,7 +170,6 @@ void clientEvent(Client c) {
       comment_l2.add("600.0");
       comment_l2.add(""+random(1,1.5));
       comment_l.add(comment_l2);
-      println(comment_l);
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -175,83 +180,83 @@ void clientEvent(Client c) {
 }
 
 void keyPressed() {
-  if (keyCode == UP) {
-    if (piece_dir == 0 && road_map[piece_x+1][piece_y]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_x += 1;
-        on_move = true;
-    } else if (piece_dir == 1 && road_map[piece_x][piece_y+1]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_y += 1;
-        on_move = true;
-    } else if (piece_dir == 2 && road_map[piece_x-1][piece_y]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_x -= 1;
-        on_move = true;
-    } else if (piece_dir == 3 && road_map[piece_x][piece_y-1]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_y -= 1;
-        on_move = true;
-    }
-  } else if (keyCode == DOWN) {
-    if (piece_dir == 0 && road_map[piece_x-1][piece_y]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_x -= 1;
-        on_move = true;
-    } else if (piece_dir == 1 && road_map[piece_x][piece_y-1]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_y -= 1;
-        on_move = true;
-    } else if (piece_dir == 2 && road_map[piece_x+1][piece_y]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_x += 1;
-        on_move = true;
-    } else if (piece_dir == 3 && road_map[piece_x][piece_y+1]%17 != 1) {
-        piece_xprev = piece_x;
-        piece_yprev = piece_y;
-        piece_y += 1;
-        on_move = true;
-    }
-  } else if (keyCode == LEFT) {
-    piece_dirprev = piece_dir;
-    piece_dir = (piece_dir+3) % 4;
-    on_turn = true;
-  } else if (keyCode == RIGHT) {
-    piece_dirprev = piece_dir;
-    piece_dir = (piece_dir+1) % 4;
-    on_turn = true;
-  }
-  // コメント入力
-  // println("key pressed key=" + key + ",keyCode=" + keyCode); //動作確認コード
-  if (keyCode == 47) {
-      keyFlag = true; //「/」を入力したら入力モード
-  }
-  else if (keyCode == 10) {
-    keyFlag = false; //Enterを押したら出力モード
-    println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
-    client.write("str"+tmp); //サーバーに文字列の情報を送る。
-    move = true; //出力モードオン
-    move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
-    tmp = ""; //入力する文字列の初期化
-  }
-  if (keyFlag){ //入力モードの時
-    if (keyCode != 37 && keyCode != 38 && keyCode != 39 && keyCode != 40){ //上下左右移動のコマンドは無視
-      if (keyCode == 8) { // backspaceを押したとき1文字消す
-        if (tmp.length() >= 1) {
-        tmp = tmp.substring(0, tmp.length()-1);
+    if (keyCode == UP) {
+        if (piece_dir == 0 && road_map[piece_x+1][piece_y]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_x += 1;
+            on_move = true;
+        } else if (piece_dir == 1 && road_map[piece_x][piece_y+1]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_y += 1;
+            on_move = true;
+        } else if (piece_dir == 2 && road_map[piece_x-1][piece_y]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_x -= 1;
+            on_move = true;
+        } else if (piece_dir == 3 && road_map[piece_x][piece_y-1]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_y -= 1;
+            on_move = true;
         }
-      } else if(keyCode != 47) { //「/」以外は入力する(入力切替時に先頭に「/」が入ってしまうことを修正すると必要なくなる。)
-        tmp += key;
-      }
+    } else if (keyCode == DOWN) {
+        if (piece_dir == 0 && road_map[piece_x-1][piece_y]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_x -= 1;
+            on_move = true;
+        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_y -= 1;
+            on_move = true;
+        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_x += 1;
+            on_move = true;
+        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1]%17 != 1) {
+            piece_xprev = piece_x;
+            piece_yprev = piece_y;
+            piece_y += 1;
+            on_move = true;
+        }
+    } else if (keyCode == LEFT) {
+        piece_dirprev = piece_dir;
+        piece_dir = (piece_dir+3) % 4;
+        on_turn = true;
+    } else if (keyCode == RIGHT) {
+        piece_dirprev = piece_dir;
+        piece_dir = (piece_dir+1) % 4;
+        on_turn = true;
     }
-  }
+    // コメント入力
+    // println("key pressed key=" + key + ",keyCode=" + keyCode); //動作確認コード
+    if (keyCode == 47) {
+        keyFlag = true; //「/」を入力したら入力モード
+    }
+    else if (keyCode == 10) {
+        keyFlag = false; //Enterを押したら出力モード
+        println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
+        client.write("str"+tmp); //サーバーに文字列の情報を送る。
+        move = true; //出力モードオン
+        move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
+        tmp = ""; //入力する文字列の初期化
+    }
+    if (keyFlag){ //入力モードの時
+      if (keyCode != 37 && keyCode != 38 && keyCode != 39 && keyCode != 40){ //上下左右移動のコマンドは無視
+        if (keyCode == 8) { // backspaceを押したとき1文字消す
+          if (tmp.length() >= 1) {
+          tmp = tmp.substring(0, tmp.length()-1);
+          }
+        } else if(keyCode != 47) { //「/」以外は入力する(入力切替時に先頭に「/」が入ってしまうことを修正すると必要なくなる。)
+          tmp += key;
+        }
+     }
+   }
 }
 
 // ボード初期化関数
@@ -345,26 +350,17 @@ void draw_maze3D() {
     }
   }
   text_input();
-  if (comment_l.size() > 0){
-    for (int i = 0 ;i < comment_l.size(); i++){
+  if (comment_l.length > 0){
+    int c = 0;
+    for (int i = 0 ;i < comment_l.length; i++){
       com = comment_l.get(i).get(0);
       com_x = Float.valueOf(comment_l.get(i).get(1));
       com_y = Float.valueOf(comment_l.get(i).get(2)) - 100;
       com_z = Float.valueOf(comment_l.get(i).get(3));
       com_v = Float.valueOf(comment_l.get(i).get(4));
       text_result = text_move(i, com, com_x, com_y, com_z, com_v); //これを適当にfor とかで全コメントで回す
-      println(1);
       if (text_result != 0){
         com_y += 100;
-        if (com_z > 0 && com_x == 0){
-          com_z = text_result;
-        }
-        else if(com_z < 0 && com_x < 600){
-          com_x = text_result;
-        }
-        else if(com_z < 600 && com_x > 600){
-          com_z = text_result;
-        }
         ArrayList<String> comment3 = new ArrayList<String>(comment_l.get(i));
         comment3.set(0, com);
         comment3.set(1, ""+com_x);
@@ -373,14 +369,15 @@ void draw_maze3D() {
         comment_l.set(i, comment3);
       }
       else{
-        del_com.add(""+i);
+        del_com[c] = i;
+        c++;
       }
     }
-    if (del_com.size() > 0){
-      for (int i = 0; i < del_com.size(); i++){
-        comment_l.remove(del_com.get(i));
+    if (del_com.length > 0){
+      for (int i = 0; i < del_com.length; i++){
+        comment_l.remove(del_com[i]);
       }
-      del_com.clear();
+      int del_com[];
     }
   }
   Yagura();
@@ -531,44 +528,42 @@ void text_input(){
 }
 
 //テキストを動かす関数
-void text_move(int num){
-  String comment = comments[num][0];
-  float x = float(comments[num][1]);
-  float y = -float(comments[num][2]);
-  float z = float(comments[num][3]);
-  float v = float(comments[num][4]);
-  println(comment);
+float text_move(int i, String move_tmp, float x, float y, float z, float v){
   fill(255); //文字を白色に変える。
   pushMatrix();
   rotateX(-PI/2); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  if (z > 0 && x == 0){
+  if (z != 0 && x != 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(PI/2);
-    text(comment, 0, 0, 0);//入力モード時の文字列を表示
+    text(move_tmp, 0, 0, 0);
     popMatrix();
-    comments[num][3] = str(z - v);
+    z -= v;
     popMatrix();
+    return z;
   }
-  else if(z < 0 && x < 600){
+  else if(x != 600){
     pushMatrix();
     translate(x,y,z);
-    text(comment, 0, 0, 0); //入力モード時の文字列を表示
+    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    comments[num][1] = str(x + v);
+    x += v;
     popMatrix();
+    return x;
   }
-  else if(z < 600 && x > 600){
+  else if(z != 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(-PI/2);
-    text(comment, 0, 0, 0); //入力モード時の文字列を表示
+    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    comments[num][3] = str(z + v);
+    z += v;
     popMatrix();
+    return z;
   }
   else {
     popMatrix();
+    return 0;
   }
 }
