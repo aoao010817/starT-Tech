@@ -138,7 +138,7 @@ void Yagura() {
 void Yatai() {
   for (int i = 0; i < 6; i++) {
     pushMatrix();
-    translate((i+1)*3*road_w, 20 * road_w, -11);
+    translate((i+1)*3*road_w, 21 * road_w - 8, -11);
     lights();
     shape(Yatai);
     popMatrix();
@@ -192,12 +192,12 @@ void clientEvent(Client c) {
     } else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
       String comment = S_str.substring(3, S_str.length());
       ArrayList<String> comment_l2 = new ArrayList<String>();
-      com_y = random(0,80);
+      com_y = random(20,100);
       comment_l2.add(comment);
       comment_l2.add("0.0");
       comment_l2.add(""+com_y);
       comment_l2.add("600.0");
-      comment_l2.add(""+random(1,1.5));
+      comment_l2.add(""+random(1,1.6));
       comment_l.add(comment_l2);
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
