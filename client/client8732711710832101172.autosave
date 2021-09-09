@@ -1,12 +1,13 @@
 import processing.net.*;
-Client client;
+import java.util.List;
+import java.util.Arrays;
 PVector gravity = new PVector(0.05, 0.05, -0.1); //重力のようなもの
 ArrayList<ParticleSystem> particleSystem; //花火の情報
 
 int board_x = 0;// ボードサイズ
 int board_y = 0;
 int road_w = 0;// ボード1マスのサイズ
-int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～17:他ユーザー, 18:移動不可能(床有り))
+int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～17:他ユーザー)
 int piece_x = 0;// 自アバターの座標
 int piece_y = 0; 
 int[] dir_x = {1, 0, -1, 0}; //進行方向と座標の関係を保持
@@ -25,26 +26,20 @@ PShape Avater2;
 PShape Avater3;
 PShape Avater4;
 PShape Yagura;
-PShape Tyouchin;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false; //入力モードON/OFF
 boolean move = false; //出力モードON/OFF
 String tmp = ""; //入力した文字列を記録するもの
 String move_tmp = ""; //壁際に流す
-ArrayList<ArrayList<String>> comment_l = new ArrayList(); 
-String com = "";
-float com_x;
-float com_y;
-float com_z;
-float com_v;
-float text_result;
-int del_com[];
+float x = 0; //動いている文字のx軸
+float z = 600; //動いている文字のz軸
+float a = 0; //意味を成さない(実験用変数)
+ArrayList<ArrayList<String>> comment = new ArrayList(); //動くコメントのリスト
 
 void setup() {
     size(1200, 900, P3D);
-    client = new Client(this, "153.122.191.29", 5024);
-    //client = new Client(this, "", 5024);
+    // client = new Client(this, "153.122.191.29", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -54,7 +49,6 @@ void setup() {
     Avater3 = loadShape("../Avater3/Avater3.obj");
     Avater4 = loadShape("../Avater4/Avater4.obj");
     Yagura = loadShape("../Yagura/Yagura.obj");
-    Tyouchin = loadShape("../tyouchin/tyouchin.obj");
 }
 
 void draw(){
@@ -86,7 +80,7 @@ void draw(){
     } else {
       C_str += str(piece_y);
     }
-    client.write(C_str);
+    // client.write(C_str);
   }
 }
 
@@ -111,47 +105,24 @@ void Avater(int x, int y, int num) {
 
 void Yagura() {
   pushMatrix();
-  translate((board_x-2)*road_w/2-8, (board_y-2)*road_w/2-8, -11);
+  translate((board_x-2)*road_w/2, (board_y-2)*road_w/2, -11);
   lights();
   shape(Yagura);
   popMatrix();
 }
 
-void Tyouchin() {
-  int[][] tyouchin_list = { // 中心座標を0, 0としたときのちょうちんの座標[x, y, z]
-    {0, 8, 0},
-    {8, 0, 0},
-    {0, -8, 0},
-    {-8, 0, 0},
-    {5, 5, 0},
-    {-5, -5, 0},
-    {5, -5, 0},
-    {-5, 5, 0}
-  };
-  for (int i = 0; i < tyouchin_list.length; i++) {
-    pushMatrix();
-    translate((board_x-2+tyouchin_list[i][0])*road_w/2, (board_y-2+tyouchin_list[i][1])*road_w/2, tyouchin_list[i][2]);
-    lights();
-    shape(Tyouchin);
-    popMatrix();
-  }
-}
-
 // サーバーからメッセージを受け取った際に実行
 void clientEvent(Client c) {
   String S_str = c.readString();
-  println("C:" + S_str);
+  //println("C:" + S_str);
   if (S_str != null) {
     if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%8 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
         for (int y = 2; y < board_y-2; y++) {
-          if (road_map[x][y] < 18) {
-            road_map[x][y] = 0;
-          }
+          road_map[x][y] = 0;
         }
       }
       for (int i = 0; i < (S_str.length()-3) / 8; i++) { // 他ユーザーの座標を取得
-
         String id = S_str.substring(8 * i + 3, 8 * i + 6);
         int dir = int(S_str.substring(8 * i + 6, 8 * i + 7));
         int x = int(S_str.substring(8 * i + 7, 8 * i + 9));
@@ -160,16 +131,9 @@ void clientEvent(Client c) {
           road_map[x][y] = 2 + int(id.substring(2))*4 + dir;
         }
       }
-    } else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
+    }else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
       String comment = S_str.substring(3, S_str.length());
-      ArrayList<String> comment_l2 = new ArrayList<String>();
-      com_y = random(0,80);
-      comment_l2.add(comment);
-      comment_l2.add("0.0");
-      comment_l2.add(""+com_y);
-      comment_l2.add("600.0");
-      comment_l2.add(""+random(1,1.5));
-      comment_l.add(comment_l2);
+      
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -181,44 +145,44 @@ void clientEvent(Client c) {
 
 void keyPressed() {
     if (keyCode == UP) {
-        if (piece_dir == 0 && road_map[piece_x+1][piece_y]%17 != 1) {
+        if (piece_dir == 0 && road_map[piece_x+1][piece_y] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x += 1;
             on_move = true;
-        } else if (piece_dir == 1 && road_map[piece_x][piece_y+1]%17 != 1) {
+        } else if (piece_dir == 1 && road_map[piece_x][piece_y+1] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y += 1;
             on_move = true;
-        } else if (piece_dir == 2 && road_map[piece_x-1][piece_y]%17 != 1) {
+        } else if (piece_dir == 2 && road_map[piece_x-1][piece_y] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x -= 1;
             on_move = true;
-        } else if (piece_dir == 3 && road_map[piece_x][piece_y-1]%17 != 1) {
+        } else if (piece_dir == 3 && road_map[piece_x][piece_y-1] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y -= 1;
             on_move = true;
         }
     } else if (keyCode == DOWN) {
-        if (piece_dir == 0 && road_map[piece_x-1][piece_y]%17 != 1) {
+        if (piece_dir == 0 && road_map[piece_x-1][piece_y] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x -= 1;
             on_move = true;
-        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1]%17 != 1) {
+        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y -= 1;
             on_move = true;
-        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y]%17 != 1) {
+        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x += 1;
             on_move = true;
-        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1]%17 != 1) {
+        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1] != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y += 1;
@@ -241,7 +205,7 @@ void keyPressed() {
     else if (keyCode == 10) {
         keyFlag = false; //Enterを押したら出力モード
         println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
-        client.write("str"+tmp); //サーバーに文字列の情報を送る。
+        // client.write("str"+tmp); //サーバーに文字列の情報を送る。
         move = true; //出力モードオン
         move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
         tmp = ""; //入力する文字列の初期化
@@ -282,24 +246,14 @@ void init_maze() {
       road_map[x][y] = 1;
     }
   }
-  for (int x = 1; x < board_x-1; x++) {
-    for (int y = 1; y < board_y-1; y++) {
+  for (int x = 2; x < board_x-2; x++) {
+    for (int y = 2; y < board_y-2; y++) {
       road_map[x][y] = 0;
     }
   }
-  for (int x = (board_x-2)/2-1; x <= (board_x-2)/2+1; x++) {
-    for (int y = (board_y-2)/2-1; y <= (board_y-2)/2+1; y++) {
-      road_map[x][y] = 18;
-    }
-  }
-  while (true) {
-    piece_x = int(random(2, board_x-2));
-    piece_y = int(random(2, board_y-2));
-    if(road_map[piece_x][piece_y] == 0) {
-      break;
-    }
-  }
-  piece_dir = int(random(0, 4));
+  piece_x = int(random(4, board_x-4));
+  piece_y = int(random(4, board_y-4));
+  piece_dir = 0;
 }
 
 // 描画関数
@@ -326,8 +280,8 @@ void draw_maze3D() {
   } else {
     camera(piece_x*road_w, piece_y*road_w, 0, piece_x*road_w+dir_x[piece_dir], piece_y*road_w+dir_y[piece_dir], 0, 0, 0, -1);
   }
-  for (int x = 1; x < board_x-1; x++) {
-    for (int y = 1; y < board_y-1; y++) {
+  for (int x = 2; x < board_x-2; x++) {
+    for (int y = 2; y < board_y-2; y++) {
       int status = road_map[x][y];
       if (status != 1) {
         pushMatrix();
@@ -350,38 +304,12 @@ void draw_maze3D() {
     }
   }
   text_input();
-  if (comment_l.length > 0){
-    int c = 0;
-    for (int i = 0 ;i < comment_l.length; i++){
-      com = comment_l.get(i).get(0);
-      com_x = Float.valueOf(comment_l.get(i).get(1));
-      com_y = Float.valueOf(comment_l.get(i).get(2)) - 100;
-      com_z = Float.valueOf(comment_l.get(i).get(3));
-      com_v = Float.valueOf(comment_l.get(i).get(4));
-      text_result = text_move(i, com, com_x, com_y, com_z, com_v); //これを適当にfor とかで全コメントで回す
-      if (text_result != 0){
-        com_y += 100;
-        ArrayList<String> comment3 = new ArrayList<String>(comment_l.get(i));
-        comment3.set(0, com);
-        comment3.set(1, ""+com_x);
-        comment3.set(2, ""+com_y);
-        comment3.set(3, ""+com_z);
-        comment_l.set(i, comment3);
-      }
-      else{
-        del_com[c] = i;
-        c++;
-      }
-    }
-    if (del_com.length > 0){
-      for (int i = 0; i < del_com.length; i++){
-        comment_l.remove(del_com[i]);
-      }
-      int del_com[];
+  if (move){
+    for (int i; i < comment.size(); i++){
+      text_move();
     }
   }
   Yagura();
-  Tyouchin();
 }
 
 //以下花火
@@ -517,53 +445,38 @@ void text_input(){
   fill(100); //灰色に変える。
   rotateX(-1.6); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  text(tmp, 120, -road_w+4, 0.9); //入力モード時の文字列を表示
+  text(tmp, 120, 0, 0.9); //入力モード時の文字列を表示
   popMatrix();
   pushMatrix();
   fill(255); //テキストボックスの背景
-  translate(200,-1,road_w); //丁度いい座標に移動
+  translate(200,-1,1.1); //丁度いい座標に移動
   rotateX(-1.6); //向き調整
-  box(196,30,0.5); //テキストボックス作成
+  box(200,30,0.5); //テキストボックス作成
   popMatrix();
 }
 
 //テキストを動かす関数
-float text_move(int i, String move_tmp, float x, float y, float z, float v){
+void text_move(){
   fill(255); //文字を白色に変える。
   pushMatrix();
-  rotateX(-PI/2); //向き調整
+  rotateX(-1.6); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
   if (z != 0 && x != 600){
-    pushMatrix();
-    translate(x,y,z);
-    rotateY(PI/2);
-    text(move_tmp, 0, 0, 0);
-    popMatrix();
-    z -= v;
-    popMatrix();
-    return z;
+    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
+    z -= 1.0;
   }
   else if(x != 600){
-    pushMatrix();
-    translate(x,y,z);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
-    popMatrix();
-    x += v;
-    popMatrix();
-    return x;
+    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
+    x += 1.0;
   }
   else if(z != 600){
-    pushMatrix();
-    translate(x,y,z);
-    rotateY(-PI/2);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
-    popMatrix();
-    z += v;
-    popMatrix();
-    return z;
+    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
+    z += 1.0;
   }
   else {
-    popMatrix();
-    return 0;
+    x = 0;
+    z = 600;
+    move = false;
   }
+  popMatrix();
 }
