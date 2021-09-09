@@ -27,6 +27,10 @@ PShape Avater4;
 PShape Yagura;
 PShape Tyouchin;
 PShape Yatai1;
+PShape Yatai2;
+PShape Yatai3;
+PShape Yatai4;
+PShape Yatai5;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false; //入力モードON/OFF
@@ -58,6 +62,10 @@ void setup() {
     Yagura = loadShape("../Yagura/Yagura.obj");
     Tyouchin = loadShape("../tyouchin/tyouchin.obj");
     Yatai1 = loadShape("../Yatai1/Yatai1.obj");
+    Yatai2 = loadShape("../Yatai2/Yatai2.obj");
+    Yatai3 = loadShape("../Yatai3/Yatai3.obj");
+    Yatai4 = loadShape("../Yatai4/Yatai4.obj");
+    Yatai5 = loadShape("../Yatai5/Yatai5.obj");
 }
 
 void draw(){
@@ -135,12 +143,21 @@ void Yagura() {
   popMatrix();
 }
 
-void Yatai1() {
-  pushMatrix();
-  translate((board_x-2)*road_w/2-8, (board_y-2)*road_w/2+230, -11);
-  lights();
-  shape(Yatai1);
-  popMatrix();
+void Yatai() {
+  PShape[] Yatai_list = {
+    Yatai1,
+    Yatai2,
+    Yatai3,
+    Yatai4,
+    Yatai5
+  };
+  for (int i = 0; i < Yatai_list.length; i++) {
+    pushMatrix();
+    translate(i*3*road_w, 0, -11);
+    lights();
+    shape(Yatai_list[i]);
+    popMatrix();
+  }
 }
 
 void Tyouchin() {
@@ -415,7 +432,7 @@ void draw_maze3D() {
     }
   }
   Yagura();
-  Yatai1();
+  Yatai();
   Tyouchin();
   Avater(17, 1, 3);
   Avater(18, 1, 7);
