@@ -6,7 +6,7 @@ ArrayList<ParticleSystem> particleSystem; //花火の情報
 int board_x = 0;// ボードサイズ
 int board_y = 0;
 int road_w = 0;// ボード1マスのサイズ
-int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～17:他ユーザー)
+int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～17:他ユーザー, 18:移動不可能(床有り))
 int piece_x = 0;// 自アバターの座標
 int piece_y = 0; 
 int[] dir_x = {1, 0, -1, 0}; //進行方向と座標の関係を保持
@@ -103,7 +103,7 @@ void Avater(int x, int y, int num) {
 
 void Yagura() {
   pushMatrix();
-  translate((board_x-2)*road_w/2, (board_y-2)*road_w/2, -11);
+  translate((board_x-2)*road_w/2-8, (board_y-2)*road_w/2-8, -11);
   lights();
   shape(Yagura);
   popMatrix();
@@ -112,12 +112,14 @@ void Yagura() {
 // サーバーからメッセージを受け取った際に実行
 void clientEvent(Client c) {
   String S_str = c.readString();
-  //println("C:" + S_str);
+  println("C:" + S_str);
   if (S_str != null) {
     if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%8 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
       for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
         for (int y = 2; y < board_y-2; y++) {
-          road_map[x][y] = 0;
+          if (road_map[x][y] < 18) {
+            road_map[x][y] = 0;
+          }
         }
       }
       for (int i = 0; i < (S_str.length()-3) / 8; i++) { // 他ユーザーの座標を取得
@@ -143,22 +145,22 @@ void clientEvent(Client c) {
 
 void keyPressed() {
     if (keyCode == UP) {
-        if (piece_dir == 0 && road_map[piece_x+1][piece_y] != 1) {
+        if (piece_dir == 0 && road_map[piece_x+1][piece_y]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x += 1;
             on_move = true;
-        } else if (piece_dir == 1 && road_map[piece_x][piece_y+1] != 1) {
+        } else if (piece_dir == 1 && road_map[piece_x][piece_y+1]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y += 1;
             on_move = true;
-        } else if (piece_dir == 2 && road_map[piece_x-1][piece_y] != 1) {
+        } else if (piece_dir == 2 && road_map[piece_x-1][piece_y]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x -= 1;
             on_move = true;
-        } else if (piece_dir == 3 && road_map[piece_x][piece_y-1] != 1) {
+        } else if (piece_dir == 3 && road_map[piece_x][piece_y-1]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y -= 1;
@@ -244,9 +246,14 @@ void init_maze() {
       road_map[x][y] = 1;
     }
   }
-  for (int x = 2; x < board_x-2; x++) {
-    for (int y = 2; y < board_y-2; y++) {
+  for (int x = 1; x < board_x-1; x++) {
+    for (int y = 1; y < board_y-1; y++) {
       road_map[x][y] = 0;
+    }
+  }
+  for (int x = (board_x-2)/2-1; x <= (board_x-2)/2+1; x++) {
+    for (int y = (board_y-2)/2-1; y <= (board_y-2)/2+1; y++) {
+      road_map[x][y] = 18;
     }
   }
   piece_x = int(random(4, board_x-4));
@@ -278,8 +285,8 @@ void draw_maze3D() {
   } else {
     camera(piece_x*road_w, piece_y*road_w, 0, piece_x*road_w+dir_x[piece_dir], piece_y*road_w+dir_y[piece_dir], 0, 0, 0, -1);
   }
-  for (int x = 2; x < board_x-2; x++) {
-    for (int y = 2; y < board_y-2; y++) {
+  for (int x = 1; x < board_x-1; x++) {
+    for (int y = 1; y < board_y-1; y++) {
       int status = road_map[x][y];
       if (status != 1) {
         pushMatrix();
@@ -441,11 +448,11 @@ void text_input(){
   fill(100); //灰色に変える。
   rotateX(-1.6); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  text(tmp, 120, 0, 0.9); //入力モード時の文字列を表示
+  text(tmp, (board_x)/2*road_w, -road_w, 0.9); //入力モード時の文字列を表示
   popMatrix();
   pushMatrix();
   fill(255); //テキストボックスの背景
-  translate(200,-1,1.1); //丁度いい座標に移動
+  translate((board_x)/2*road_w,-road_w-1,1.1); //丁度いい座標に移動
   rotateX(-1.6); //向き調整
   box(200,30,0.5); //テキストボックス作成
   popMatrix();
