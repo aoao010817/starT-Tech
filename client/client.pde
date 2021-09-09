@@ -25,6 +25,7 @@ PShape Avater2;
 PShape Avater3;
 PShape Avater4;
 PShape Yagura;
+PShape Tyouchin;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false; //入力モードON/OFF
@@ -37,8 +38,8 @@ float a = 0; //意味を成さない(実験用変数)
 
 void setup() {
     size(1200, 900, P3D);
-    // client = new Client(this, "153.122.191.29", 5024);
-    client = new Client(this, "", 5024);
+    client = new Client(this, "153.122.191.29", 5024);
+    //client = new Client(this, "", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -48,6 +49,7 @@ void setup() {
     Avater3 = loadShape("../Avater3/Avater3.obj");
     Avater4 = loadShape("../Avater4/Avater4.obj");
     Yagura = loadShape("../Yagura/Yagura.obj");
+    Tyouchin = loadShape("../tyouchin/tyouchin.obj");
 }
 
 void draw(){
@@ -108,6 +110,22 @@ void Yagura() {
   lights();
   shape(Yagura);
   popMatrix();
+}
+
+void Tyouchin() {
+  int[][] tyouchin_list = { // 中心座標を0, 0としたときのちょうちんの座標[x, y, z]
+    {0, 4, 0},
+    {4, 0, 0},
+    {0, -4, 0},
+    {-4, 0, 0}
+  };
+  for (int i = 0; i < tyouchin_list.length; i++) {
+    pushMatrix();
+    translate((board_x-2+tyouchin_list[i][0])*road_w/2, (board_y-2+tyouchin_list[i][1])*road_w/2, tyouchin_list[i][2]);
+    lights();
+    shape(Tyouchin);
+    popMatrix();
+  }
 }
 
 // サーバーからメッセージを受け取った際に実行
@@ -314,6 +332,7 @@ void draw_maze3D() {
     text_move(x, -50, z, 1.5); //これを適当にfor とかで全コメントで回す
   }
   Yagura();
+  Tyouchin();
 }
 
 //以下花火
