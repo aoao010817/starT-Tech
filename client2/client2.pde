@@ -1,42 +1,49 @@
-let gravity = new PVector(0.05, 0.05, -0.1); //重力のようなもの
+import processing.net.*;
+Client client;
+PVector gravity = new PVector(0.05, 0.05, -0.1); //重力のようなもの
 ArrayList<ParticleSystem> particleSystem; //花火の情報
 
-let board_x = 0;// ボードサイズ
-let board_y = 0;
-let road_w = 0;// ボード1マスのサイズ
-let road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～17:他ユーザー, 18:移動不可能(床有り))
-let piece_x = 0;// 自アバターの座標
-let piece_y = 0; 
-const dir_x = [1, 0, -1, 0]; //進行方向と座標の関係を保持
-const dir_y = [0, 1, 0, -1];
-let piece_dir = 0;// 自アバターの向き
-let piece_xprev = 0; // 一つ前の情報を保持
-let piece_yprev = 0;
-let piece_dirprev = 0 ;
-let on_move = false;
-let on_turn = false;
-let move_time = 10; // アニメーションの描画時間(ms)
-let move_count = 0;
-let C_id = "000"; // 自分のクライアントID
-let Avater1;
-let Avater2;
-let Avater3;
-let Avater4;
-let Yagura;
-let id_exist = false;
-let request_count = 0;
-let keyFlag = false; //入力モードON/OFF
-let move = false; //出力モードON/OFF
-let tmp = ""; //入力した文字列を記録するもの
-let move_tmp = ""; //壁際に流す
-let x = 0; //動いている文字のx軸
-let z = 600; //動いている文字のz軸
-let a = 0; //意味を成さない(実験用変数)
+int board_x = 0;// ボードサイズ
+int board_y = 0;
+int road_w = 0;// ボード1マスのサイズ
+int[][] road_map;// ボード情報(0:移動可能, 1:移動不可能, 2～17:他ユーザー, 18:移動不可能(床有り))
+int piece_x = 0;// 自アバターの座標
+int piece_y = 0; 
+int[] dir_x = {1, 0, -1, 0}; //進行方向と座標の関係を保持
+int[] dir_y = {0, 1, 0, -1};
+int piece_dir = 0;// 自アバターの向き
+int piece_xprev = 0; // 一つ前の情報を保持
+int piece_yprev = 0;
+int piece_dirprev = 0 ;
+boolean on_move = false;
+boolean on_turn = false;
+int move_time = 10; // アニメーションの描画時間(ms)
+int move_count = 0;
+String C_id = "000"; // 自分のクライアントID
+PShape Avater1;
+PShape Avater2;
+PShape Avater3;
+PShape Avater4;
+PShape Yagura;
+PShape Tyouchin;
+PShape Yatai1;
+Boolean id_exist = false;
+int request_count = 0;
+boolean keyFlag = false; //入力モードON/OFF
+boolean move = false; //出力モードON/OFF
+String tmp = ""; //入力した文字列を記録するもの
+String move_tmp = ""; //壁際に流す
+String[][] comments = new String[80][5];
+int comment_num = 0;
+int current_comment_index = 0;
+float text_result;
+int del_com[];
+float tyouchin_angle = 0; // ちょうちんの縦移動に用いるcos計算に与える角度
 
-function setup() {
+void setup() {
     size(1200, 900, P3D);
-    // client = new Client(this, "153.122.191.29", 5024);
-    client = new Client(this, "", 5024);
+    client = new Client(this, "153.122.191.29", 5024);
+    //client = new Client(this, "", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -46,14 +53,16 @@ function setup() {
     Avater3 = loadShape("../Avater3/Avater3.obj");
     Avater4 = loadShape("../Avater4/Avater4.obj");
     Yagura = loadShape("../Yagura/Yagura.obj");
+    Tyouchin = loadShape("../tyouchin/tyouchin.obj");
+    Yatai1 = loadShape("../Yatai1/Yatai1.obj");
 }
 
-function draw(){
+void draw(){
   draw_maze3D();  
   if (random(1) < 0.3) {
     particleSystem.add(new ParticleSystem());
   }
-  for (i = particleSystem.size()-1; i >= 0; i--) {
+  for (int i = particleSystem.size()-1; i >= 0; i--) {
     ParticleSystem ps = particleSystem.get(i);
     ps.run();
     if (ps.done()) {
@@ -66,7 +75,7 @@ function draw(){
     request_count = 0;
     // format: クライアントID(3桁) + 向き(0～3) + X座標(2桁) + Y座標(2桁) 
 
-    let C_str = C_id + str(piece_dir);
+    String C_str = C_id + str(piece_dir);
     if (piece_x < 10) {
       C_str += "0" + str(piece_x);
     } else {
@@ -82,15 +91,15 @@ function draw(){
 }
 
 //Avaterを生成する関数を作成
-function Avater(x, y, num) {
-  let Avater_list = {
+void Avater(int x, int y, int num) {
+  PShape[] Avater_list = {
     Avater1,
     Avater2,
     Avater3,
     Avater4
   };
-  let avater_num = (num-2)/4;
-  let avater_dir = (num-2)%4;
+  int avater_num = (num-2)/4;
+  int avater_dir = (num-2)%4;
   
   pushMatrix();
   translate(x*road_w, y*road_w, -11);
@@ -100,7 +109,7 @@ function Avater(x, y, num) {
   popMatrix();
 }
 
-function Yagura() {
+void Yagura() {
   pushMatrix();
   translate((board_x-2)*road_w/2-8, (board_y-2)*road_w/2-8, -11);
   lights();
@@ -108,31 +117,73 @@ function Yagura() {
   popMatrix();
 }
 
+void Yatai1() {
+  pushMatrix();
+  translate((board_x-2)*road_w/2-8, (board_y-2)*road_w/2+230, -11);
+  lights();
+  shape(Yatai1);
+  popMatrix();
+}
+
+void Tyouchin() {
+  int[][] tyouchin_list = { // 中心座標を0, 0としたときのちょうちんの座標[x, y, z]
+    {0, 8, 24},
+    {8, 0, 36},
+    {0, -8, 0},
+    {-8, 0, 72},
+    {5, 5, 198},
+    {-5, -5, 246},
+    {5, -5, 114},
+    {-5, 5, 126}
+  };
+  for (int i = 0; i < tyouchin_list.length; i++) {
+    pushMatrix();
+    translate((board_x-2+tyouchin_list[i][0])*road_w/2, (board_y-2+tyouchin_list[i][1])*road_w/2, 3*cos(radians(tyouchin_list[i][2]+tyouchin_angle)));
+    lights();
+    shape(Tyouchin);
+    popMatrix();
+  }
+  tyouchin_angle += 1.2;
+}
+
 // サーバーからメッセージを受け取った際に実行
-function clientEvent(Client c) {
-  let S_str = c.readString();
+void clientEvent(Client c) {
+  String S_str = c.readString();
   println("C:" + S_str);
   if (S_str != null) {
     if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%8 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
-      for (x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
-        for (y = 2; y < board_y-2; y++) {
+      for (int x = 1; x < board_x-1; x++) { // 他ユーザーの描画をリセット
+        for (int y = 1; y < board_y-1; y++) {
           if (road_map[x][y] < 18) {
             road_map[x][y] = 0;
           }
         }
       }
-      for (i = 0; i < (S_str.length()-3) / 8; i++) { // 他ユーザーの座標を取得
+      for (int i = 0; i < (S_str.length()-3) / 8; i++) { // 他ユーザーの座標を取得
 
-        let id = S_str.substring(8 * i + 3, 8 * i + 6);
-        let dir = int(S_str.substring(8 * i + 6, 8 * i + 7));
-        let x = int(S_str.substring(8 * i + 7, 8 * i + 9));
-        let y = int(S_str.substring(8 * i + 9, 8 * i + 11));
+        String id = S_str.substring(8 * i + 3, 8 * i + 6);
+        int dir = int(S_str.substring(8 * i + 6, 8 * i + 7));
+        int x = int(S_str.substring(8 * i + 7, 8 * i + 9));
+        int y = int(S_str.substring(8 * i + 9, 8 * i + 11));
         if (!id.equals(C_id)) {
           road_map[x][y] = 2 + int(id.substring(2))*4 + dir;
         }
       }
     } else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
-        let comment = S_str.substring(3, S_str.length());
+      String comment = S_str.substring(3, S_str.length());
+      comments[current_comment_index][0] = comment + current_comment_index;
+      comments[current_comment_index][1] = str(0);
+      comments[current_comment_index][2] = str(random(20,120));
+      comments[current_comment_index][3] = str(600);
+      comments[current_comment_index][4] = str(random(1,1.6));
+      if (comment_num < 80) {
+        comment_num++;
+      }
+      if (current_comment_index < 79) {
+        current_comment_index++;
+      } else {
+        current_comment_index = 0;
+      }
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -142,7 +193,7 @@ function clientEvent(Client c) {
   }
 }
 
-function keyPressed() {
+void keyPressed() {
     if (keyCode == UP) {
         if (piece_dir == 0 && road_map[piece_x+1][piece_y]%17 != 1) {
             piece_xprev = piece_x;
@@ -166,22 +217,22 @@ function keyPressed() {
             on_move = true;
         }
     } else if (keyCode == DOWN) {
-        if (piece_dir == 0 && road_map[piece_x-1][piece_y] != 1) {
+        if (piece_dir == 0 && road_map[piece_x-1][piece_y]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x -= 1;
             on_move = true;
-        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1] != 1) {
+        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y -= 1;
             on_move = true;
-        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y] != 1) {
+        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x += 1;
             on_move = true;
-        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1] != 1) {
+        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y += 1;
@@ -197,7 +248,6 @@ function keyPressed() {
         on_turn = true;
     }
     // コメント入力
-    // println("key pressed key=" + key + ",keyCode=" + keyCode); //動作確認コード
     if (keyCode == 47) {
         keyFlag = true; //「/」を入力したら入力モード
     }
@@ -226,66 +276,71 @@ function keyPressed() {
 // int x: ボードのX方向の大きさ
 // int y: ボードのY方向の大きさ
 // int w: 1マスの大きさ
-function make_board(x, y, w) {
+void make_board(int x, int y, int w) {
   board_x = x+2;
   board_y = y+2;
   road_w = w;
   road_map = new int[board_x][board_y];
-  for (i = 0; i < board_y; i++) {
-    for (j = 0; j < board_x; j++) {
+  for (int i = 0; i < board_y; i++) {
+    for (int j = 0; j < board_x; j++) {
       road_map[j][i] = 0;
     }
   }
 }
 
 // ボード、座標初期化関数
-function init_maze() {
-  for (x = 0; x < board_x; x++) {
-    for (y = 0; y < board_y; y++) {
+void init_maze() {
+  for (int x = 0; x < board_x; x++) {
+    for (int y = 0; y < board_y; y++) {
       road_map[x][y] = 1;
     }
   }
-  for (x = 1; x < board_x-1; x++) {
-    for (y = 1; y < board_y-1; y++) {
+  for (int x = 1; x < board_x-1; x++) {
+    for (int y = 1; y < board_y-1; y++) {
       road_map[x][y] = 0;
     }
   }
-  for (x = (board_x-2)/2-1; x <= (board_x-2)/2+1; x++) {
-    for (y = (board_y-2)/2-1; y <= (board_y-2)/2+1; y++) {
+  for (int x = (board_x-2)/2-1; x <= (board_x-2)/2+1; x++) {
+    for (int y = (board_y-2)/2-1; y <= (board_y-2)/2+1; y++) {
       road_map[x][y] = 18;
     }
   }
-  piece_x = int(random(4, board_x-4));
-  piece_y = int(random(4, board_y-4));
-  piece_dir = 0;
+  while (true) {
+    piece_x = int(random(2, board_x-2));
+    piece_y = int(random(2, board_y-2));
+    if(road_map[piece_x][piece_y] == 0) {
+      break;
+    }
+  }
+  piece_dir = int(random(0, 4));
 }
 
 // 描画関数
-function draw_maze3D() {
+void draw_maze3D() {
   colorMode(RGB, 255, 255, 255); // RGBでの色指定モード
   background(20); //空の色
   stroke(0);
-  let r = float(move_count)/float(move_time-1);
+  float r = float(move_count)/float(move_time-1);
   perspective(radians(100), float(width)/float(height), 1, 800);
   if (on_turn) {
-    let f = 0;
+    int f = 0;
     if (piece_dir-piece_dirprev == 1 || piece_dir-piece_dirprev == -3) {
       f = 1;
     } else if (piece_dir-piece_dirprev == -1 || piece_dir-piece_dirprev == 3) {
       f = -1;
     }
-    let mdir_x = cos((piece_dirprev + r*f)*HALF_PI);
-    let mdir_y = sin((piece_dirprev + r*f)*HALF_PI);
+    float mdir_x = cos((piece_dirprev + r*f)*HALF_PI);
+    float mdir_y = sin((piece_dirprev + r*f)*HALF_PI);
     camera(piece_x*road_w, piece_y*road_w, 0, (piece_x+mdir_x)*road_w, (piece_y+mdir_y)*road_w, 0, 0, 0, -1);
   } else if (on_move) {
-    let m_x = piece_x - piece_xprev;
-    let m_y = piece_y - piece_yprev;
+    float m_x = piece_x - piece_xprev;
+    float m_y = piece_y - piece_yprev;
     camera((piece_xprev+m_x*r)*road_w, (piece_yprev+m_y*r)*road_w, 0, (piece_x+dir_x[piece_dir])*road_w+dir_x[piece_dir], (piece_y+dir_y[piece_dir])*road_w+dir_y[piece_dir], 0, 0, 0, -1);
   } else {
     camera(piece_x*road_w, piece_y*road_w, 0, piece_x*road_w+dir_x[piece_dir], piece_y*road_w+dir_y[piece_dir], 0, 0, 0, -1);
   }
-  for (x = 1; x < board_x-1; x++) {
-    for (y = 1; y < board_y-1; y++) {
+  for (int x = 1; x < board_x-1; x++) {
+    for (int y = 1; y < board_y-1; y++) {
       int status = road_map[x][y];
       if (status != 1) {
         pushMatrix();
@@ -308,41 +363,49 @@ function draw_maze3D() {
     }
   }
   text_input();
-  if (move){
-    text_move();
+  for (int i = 0; i < comment_num; i++) {
+    if (int(comments[i][1]) < 600 || int(comments[i][3]) < 600 ) {
+      text_move(i);
+    }
   }
   Yagura();
+  Tyouchin();
+  Yatai1();
 }
 
 //以下花火
 class Particle {
-  constructor() {
-    this.life = 100;
-    this.lifeSpan = random(life/50, life/30);
-    this.seed = false;
+  PVector pos;
+  PVector vel;
+  PVector acc;
+  float life = 100;
+  float lifeSpan = random(life/50, life/30);
+  boolean seed = false;
+  color c;
+  Particle() {
     colorMode(HSB, 360, 100, 100); // HSBでの色指定にする
-    this.pos = new PVector(random(0,800), random(0,600), 0);
-    this.vel = new PVector(0, 0, random(-12, -6));
-    this.acc = new PVector(0, 0, 0.1);
-    this.c = color(random(360), 80, 100);
+    pos = new PVector(random(0,800), random(0,600), 0);
+    vel = new PVector(0, 0, random(-12, -6));
+    acc = new PVector(0, 0, 0.1);
+    c = color(random(360), 80, 100);
   }
-  Particle(x, y, hue) {
+  Particle(float x, float y, float hue) {
     colorMode(HSB, 360, 100, 100); // HSBでの色指定にする
-    this.pos = new PVector(x, y, random(-500, 500));
-    this.vel = new PVector(0, 0, random(-12, -6));
-    this.acc = new PVector(0, 0, 0.1);
-    this.c = color(hue, 80, 100);
-    this.seed = true;
+    pos = new PVector(x, y, random(-500, 500));
+    vel = new PVector(0, 0, random(-12, -6));
+    acc = new PVector(0, 0, 0.1);
+    c = color(hue, 80, 100);
+    seed = true;
   }
-  Particle(_pos, hue) {
+  Particle(PVector _pos, float hue) {
     colorMode(HSB, 360, 100, 100); // HSBでの色指定にする
-    this.pos = new PVector(_pos.x, _pos.y, _pos.z);
-    this.vel = PVector.random3D();
-    this.vel.mult(random(4, 6));
-    this.acc = new PVector(0, 0, 0.1);
-    this.c = color(hue, 80, 100);
+    pos = new PVector(_pos.x, _pos.y, _pos.z);
+    vel = PVector.random3D();
+    vel.mult(random(4, 6));
+    acc = new PVector(0, 0, 0.1);
+    c = color(hue, 80, 100);
   }
-  update() {
+  void update() {
     pos.add(vel);
     vel.add(acc);
     if (!seed) {
@@ -355,7 +418,7 @@ class Particle {
       vel = new PVector(0, 0, random(-12, -8));
     }
   }
-  draw() {
+  void draw() {
     stroke(c, life);
     strokeWeight(4);
     pushMatrix();
@@ -363,20 +426,20 @@ class Particle {
     point(0, 0, 0);
     popMatrix();
   }
-  applyForce(force) {
+  void applyForce(PVector force) {
     acc.add(force);
   }
-  run() {
+  void run() {
     update();
     draw();
   }
-  isDead() {
+  boolean isDead() {
     if (life < 0) {
       return true;
     }
       return false;
   }
-  explode() {
+  boolean explode() {
     if (seed && vel.y > 0) {
       lifeSpan = 0;
       return true;
@@ -386,46 +449,48 @@ class Particle {
 }
 
 class ParticleSystem {
-  constructor() {
-    ArrayList<Particle> particles;
-    this.hue = random(360);
+  ArrayList<Particle> particles;
+  Particle p;
+  float hue;
+  ParticleSystem() {
+    hue = random(360);
     switch (int(random(4))){
       case 0:
-        this.p = new Particle(random(0,48), random(0,600), hue);
+        p = new Particle(random(0,48), random(0,600), hue);
         break;
       case 1:
-        this.p = new Particle(random(48,552), random(0,48), hue);
+        p = new Particle(random(48,552), random(0,48), hue);
         break;
       case 2:
-        this.p = new Particle(random(48,552), random(552,600), hue);
+        p = new Particle(random(48,552), random(552,600), hue);
         break;
       case 3:
-        this.p = new Particle(random(552,600), random(0,600), hue);
+        p = new Particle(random(552,600), random(0,600), hue);
         break;
     }
     particles = new ArrayList<Particle>();
   }
-  done(){
+  boolean done(){
     if (p == null && particles.isEmpty()) {
       return true;
     } else {
       return false;
     }
   }
-  run() {
+  void run() {
     if (p != null) {
       p.applyForce(gravity);
       p.update();
       p.draw();
       if (p.explode()) {
-        for (i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
           particles.add(new Particle(p.pos, hue));
         }
         p = null;
       }
     }
-    for (i = particles.size()-1; i >= 0; i--) {
-      let child = particles.get(i);
+    for (int i = particles.size()-1; i >= 0; i--) {
+      Particle child = particles.get(i);
       child.applyForce(gravity);
       child.run();
       if (child.isDead()) {
@@ -436,7 +501,7 @@ class ParticleSystem {
 }
 
 //以下テキスト関連
-function text_input(){
+void text_input(){
   pushMatrix();
   fill(100); //灰色に変える。
   rotateX(-1.6); //向き調整
@@ -452,27 +517,43 @@ function text_input(){
 }
 
 //テキストを動かす関数
-function text_move(){
+void text_move(int num){
+  String comment = comments[num][0];
+  float x = float(comments[num][1]);
+  float y = -float(comments[num][2]);
+  float z = float(comments[num][3]);
+  float v = float(comments[num][4]);
   fill(255); //文字を白色に変える。
   pushMatrix();
-  rotateX(-1.6); //向き調整
+  rotateX(-PI/2); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  if (z != 0 && x != 600){
-    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
-    z -= 1.0;
+  if (z > 0 && x < 600){
+    pushMatrix();
+    translate(x,y,z);
+    rotateY(PI/2);
+    text(comment, 0, 0, 0);//入力モード時の文字列を表示
+    popMatrix();
+    comments[num][3] = str(z - v);
+    popMatrix();
   }
-  else if(x != 600){
-    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
-    x += 1.0;
+  else if(x < 600){
+    pushMatrix();
+    translate(x,y,z);
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
+    popMatrix();
+    comments[num][1] = str(x + v);
+    popMatrix();
   }
-  else if(z != 600){
-    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
-    z += 1.0;
+  else if(z < 600){
+    pushMatrix();
+    translate(x,y,z);
+    rotateY(-PI/2);
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
+    popMatrix();
+    comments[num][3] = str(z + v);
+    popMatrix();
   }
   else {
-    x = 0;
-    z = 600;
-    move = false;
+    popMatrix();
   }
-  popMatrix();
 }

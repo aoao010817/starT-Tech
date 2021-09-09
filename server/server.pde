@@ -39,7 +39,7 @@ void draw() {
       S_str += avater_num;
       coordinates[int(C_id)-1][0] = piece_x;
       coordinates[int(C_id)-1][1] = piece_y;
-      coordinates[int(C_id)-1][2] -= client_num-delete_num;
+      coordinates[int(C_id)-1][2] -= client_num-delete_num-1;
       coordinates[int(C_id)-1][3] = avater_num;
       coordinates[int(C_id)-1][4] = piece_dir;
       Outer:
@@ -50,7 +50,7 @@ void draw() {
           }
         }
         coordinates[i-1][2]++;
-        if (coordinates[i-1][2] > (client_num-delete_num)*5) {
+        if (coordinates[i-1][2] > (client_num-delete_num)*8) {
           coordinates[i-1][2] = 0;
           deletes[delete_num] = i;
           delete_num++;
