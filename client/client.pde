@@ -38,8 +38,8 @@ float a = 0; //意味を成さない(実験用変数)
 
 void setup() {
     size(1200, 900, P3D);
-    // client = new Client(this, "153.122.191.29", 5024);
-    client = new Client(this, "", 5024);
+    client = new Client(this, "153.122.191.29", 5024);
+    //client = new Client(this, "", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -112,12 +112,24 @@ void Yagura() {
   popMatrix();
 }
 
-void Tyouchin1() {
-  pushMatrix();
-  translate((board_x-2)*road_w/2-96, (board_y-2)*road_w/2-24, 20);
-  lights();
-  shape(Tyouchin);
-  popMatrix();
+void Tyouchin() {
+  int[][] tyouchin_list = { // 中心座標を0, 0としたときのちょうちんの座標[x, y, z]
+    {0, 8, 0},
+    {8, 0, 0},
+    {0, -8, 0},
+    {-8, 0, 0},
+    {5, 5, 0},
+    {-5, -5, 0},
+    {5, -5, 0},
+    {-5, 5, 0}
+  };
+  for (int i = 0; i < tyouchin_list.length; i++) {
+    pushMatrix();
+    translate((board_x-2+tyouchin_list[i][0])*road_w/2, (board_y-2+tyouchin_list[i][1])*road_w/2, tyouchin_list[i][2]);
+    lights();
+    shape(Tyouchin);
+    popMatrix();
+  }
 }
 
 // サーバーからメッセージを受け取った際に実行
@@ -324,7 +336,7 @@ void draw_maze3D() {
     text_move(x, -50, z, 1.5); //これを適当にfor とかで全コメントで回す
   }
   Yagura();
-  Tyouchin1();
+  Tyouchin();
 }
 
 //以下花火
