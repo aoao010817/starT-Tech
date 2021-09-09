@@ -1,15 +1,24 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>Processing.js Demo</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
+  <title>TanPOPO</title>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }  
+    canvas {
+      margin: auto;
+    }
+    </style>
 </head>
+
 <body>
-    <div id="wrapper">
-        <canvas id="app" data-processing-sources="client/client.pde"></canvas>
-    </div>
-    
-    <script src="js/processing.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
+  <script src="sketch.js"></script>
 </body>
+
 </html>
