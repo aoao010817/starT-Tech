@@ -20,7 +20,7 @@ void draw() {
   Client c = server.available();
   if(c != null) {
     String C_str = c.readString();
-    //println("S:" + C_str);
+    println("S:" + C_str);
     String S_str = "";
     if (C_str.substring(0, 3).equals("str")) {
       // format: "str"(判別詞) + コメント

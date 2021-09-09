@@ -311,7 +311,7 @@ void draw_maze3D() {
   }
   text_input();
   if (move){
-    text_move();
+    text_move(x, -50, z, 1.5); //これを適当にfor とかで全コメントで回す
   }
   Yagura();
 }
@@ -460,22 +460,34 @@ void text_input(){
 }
 
 //テキストを動かす関数
-void text_move(){
+void text_move(float x, float y, float z, float v){
   fill(255); //文字を白色に変える。
   pushMatrix();
-  rotateX(-1.6); //向き調整
+  rotateX(-PI/2); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
   if (z != 0 && x != 600){
-    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
-    z -= 1.0;
+    pushMatrix();
+    translate(x,y,z);
+    rotateY(PI/2);
+    text(move_tmp, 0, 0, 0);
+    popMatrix();
+    z -= v;
   }
   else if(x != 600){
-    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
-    x += 1.0;
+    pushMatrix();
+    translate(x,y,z);
+    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    popMatrix();
+    x += v;
   }
   else if(z != 600){
-    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
-    z += 1.0;
+    pushMatrix();
+    translate(x,y,z);
+    rotateY(-PI/2);
+    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    popMatrix();
+    
+    z += v;
   }
   else {
     x = 0;
