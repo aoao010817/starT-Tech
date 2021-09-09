@@ -117,7 +117,7 @@ void Tyouchin() {
     {0, 4, 0},
     {4, 0, 0},
     {0, -4, 0},
-    {-4, 0, 0}
+    {-4, 0, 0},
   };
   for (int i = 0; i < tyouchin_list.length; i++) {
     pushMatrix();
@@ -186,22 +186,22 @@ void keyPressed() {
             on_move = true;
         }
     } else if (keyCode == DOWN) {
-        if (piece_dir == 0 && road_map[piece_x-1][piece_y] != 1) {
+        if (piece_dir == 0 && road_map[piece_x-1][piece_y]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x -= 1;
             on_move = true;
-        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1] != 1) {
+        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y -= 1;
             on_move = true;
-        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y] != 1) {
+        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_x += 1;
             on_move = true;
-        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1] != 1) {
+        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1]%17 != 1) {
             piece_xprev = piece_x;
             piece_yprev = piece_y;
             piece_y += 1;
@@ -275,9 +275,14 @@ void init_maze() {
       road_map[x][y] = 18;
     }
   }
-  piece_x = int(random(4, board_x-4));
-  piece_y = int(random(4, board_y-4));
-  piece_dir = 0;
+  while (true) {
+    piece_x = int(random(2, board_x-2));
+    piece_y = int(random(2, board_y-2));
+    if(road_map[piece_x][piece_y] == 0) {
+      break;
+    }
+  }
+  piece_dir = int(random(0, 4));
 }
 
 // 描画関数
