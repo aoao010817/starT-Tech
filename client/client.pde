@@ -175,83 +175,83 @@ void clientEvent(Client c) {
 }
 
 void keyPressed() {
-    if (keyCode == UP) {
-        if (piece_dir == 0 && road_map[piece_x+1][piece_y]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_x += 1;
-            on_move = true;
-        } else if (piece_dir == 1 && road_map[piece_x][piece_y+1]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_y += 1;
-            on_move = true;
-        } else if (piece_dir == 2 && road_map[piece_x-1][piece_y]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_x -= 1;
-            on_move = true;
-        } else if (piece_dir == 3 && road_map[piece_x][piece_y-1]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_y -= 1;
-            on_move = true;
-        }
-    } else if (keyCode == DOWN) {
-        if (piece_dir == 0 && road_map[piece_x-1][piece_y]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_x -= 1;
-            on_move = true;
-        } else if (piece_dir == 1 && road_map[piece_x][piece_y-1]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_y -= 1;
-            on_move = true;
-        } else if (piece_dir == 2 && road_map[piece_x+1][piece_y]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_x += 1;
-            on_move = true;
-        } else if (piece_dir == 3 && road_map[piece_x][piece_y+1]%17 != 1) {
-            piece_xprev = piece_x;
-            piece_yprev = piece_y;
-            piece_y += 1;
-            on_move = true;
-        }
-    } else if (keyCode == LEFT) {
-        piece_dirprev = piece_dir;
-        piece_dir = (piece_dir+3) % 4;
-        on_turn = true;
-    } else if (keyCode == RIGHT) {
-        piece_dirprev = piece_dir;
-        piece_dir = (piece_dir+1) % 4;
-        on_turn = true;
+  if (keyCode == UP) {
+    if (piece_dir == 0 && road_map[piece_x+1][piece_y]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_x += 1;
+        on_move = true;
+    } else if (piece_dir == 1 && road_map[piece_x][piece_y+1]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_y += 1;
+        on_move = true;
+    } else if (piece_dir == 2 && road_map[piece_x-1][piece_y]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_x -= 1;
+        on_move = true;
+    } else if (piece_dir == 3 && road_map[piece_x][piece_y-1]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_y -= 1;
+        on_move = true;
     }
-    // コメント入力
-    // println("key pressed key=" + key + ",keyCode=" + keyCode); //動作確認コード
-    if (keyCode == 47) {
-        keyFlag = true; //「/」を入力したら入力モード
+  } else if (keyCode == DOWN) {
+    if (piece_dir == 0 && road_map[piece_x-1][piece_y]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_x -= 1;
+        on_move = true;
+    } else if (piece_dir == 1 && road_map[piece_x][piece_y-1]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_y -= 1;
+        on_move = true;
+    } else if (piece_dir == 2 && road_map[piece_x+1][piece_y]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_x += 1;
+        on_move = true;
+    } else if (piece_dir == 3 && road_map[piece_x][piece_y+1]%17 != 1) {
+        piece_xprev = piece_x;
+        piece_yprev = piece_y;
+        piece_y += 1;
+        on_move = true;
     }
-    else if (keyCode == 10) {
-        keyFlag = false; //Enterを押したら出力モード
-        println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
-        client.write("str"+tmp); //サーバーに文字列の情報を送る。
-        move = true; //出力モードオン
-        move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
-        tmp = ""; //入力する文字列の初期化
-    }
-    if (keyFlag){ //入力モードの時
-      if (keyCode != 37 && keyCode != 38 && keyCode != 39 && keyCode != 40){ //上下左右移動のコマンドは無視
-        if (keyCode == 8) { // backspaceを押したとき1文字消す
-          if (tmp.length() >= 1) {
-          tmp = tmp.substring(0, tmp.length()-1);
-          }
-        } else if(keyCode != 47) { //「/」以外は入力する(入力切替時に先頭に「/」が入ってしまうことを修正すると必要なくなる。)
-          tmp += key;
+  } else if (keyCode == LEFT) {
+    piece_dirprev = piece_dir;
+    piece_dir = (piece_dir+3) % 4;
+    on_turn = true;
+  } else if (keyCode == RIGHT) {
+    piece_dirprev = piece_dir;
+    piece_dir = (piece_dir+1) % 4;
+    on_turn = true;
+  }
+  // コメント入力
+  // println("key pressed key=" + key + ",keyCode=" + keyCode); //動作確認コード
+  if (keyCode == 47) {
+      keyFlag = true; //「/」を入力したら入力モード
+  }
+  else if (keyCode == 10) {
+    keyFlag = false; //Enterを押したら出力モード
+    println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
+    client.write("str"+tmp); //サーバーに文字列の情報を送る。
+    move = true; //出力モードオン
+    move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
+    tmp = ""; //入力する文字列の初期化
+  }
+  if (keyFlag){ //入力モードの時
+    if (keyCode != 37 && keyCode != 38 && keyCode != 39 && keyCode != 40){ //上下左右移動のコマンドは無視
+      if (keyCode == 8) { // backspaceを押したとき1文字消す
+        if (tmp.length() >= 1) {
+        tmp = tmp.substring(0, tmp.length()-1);
         }
-     }
-   }
+      } else if(keyCode != 47) { //「/」以外は入力する(入力切替時に先頭に「/」が入ってしまうことを修正すると必要なくなる。)
+        tmp += key;
+      }
+    }
+  }
 }
 
 // ボード初期化関数
