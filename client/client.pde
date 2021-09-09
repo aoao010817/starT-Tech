@@ -25,6 +25,7 @@ PShape Avater2;
 PShape Avater3;
 PShape Avater4;
 PShape Yagura;
+PShape Tyouchin;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false; //入力モードON/OFF
@@ -48,6 +49,7 @@ void setup() {
     Avater3 = loadShape("../Avater3/Avater3.obj");
     Avater4 = loadShape("../Avater4/Avater4.obj");
     Yagura = loadShape("../Yagura/Yagura.obj");
+    Tyouchin = loadShape("../tyouchin/tyouchin.obj");
 }
 
 void draw(){
@@ -107,6 +109,14 @@ void Yagura() {
   translate((board_x-2)*road_w/2-8, (board_y-2)*road_w/2-8, -11);
   lights();
   shape(Yagura);
+  popMatrix();
+}
+
+void Tyouchin1() {
+  pushMatrix();
+  translate((board_x-2)*road_w/2-96, (board_y-2)*road_w/2-24, 20);
+  lights();
+  shape(Tyouchin);
   popMatrix();
 }
 
@@ -314,6 +324,7 @@ void draw_maze3D() {
     text_move(x, -50, z, 1.5); //これを適当にfor とかで全コメントで回す
   }
   Yagura();
+  Tyouchin1();
 }
 
 //以下花火
