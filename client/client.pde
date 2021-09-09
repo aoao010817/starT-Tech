@@ -27,9 +27,9 @@ PShape Avater4;
 PShape Yagura;
 Boolean id_exist = false;
 int request_count = 0;
-boolean keyFlag = false;
-String tmp = "";
-float a = 0;
+boolean keyFlag = false; //入力モードON/OFF
+String tmp = ""; //入力した文字列を記録するもの
+float a = 0; //意味を成さない(実験用変数)
 
 void setup() {
     size(800, 600, P3D);
@@ -294,7 +294,10 @@ void draw_maze3D() {
     }
   }
   pushMatrix();
-  rotateX(-1.6);
+  rotateX(a);
+  rotateY(a);
+  rotateZ(a);
+  a += 0.1;
   textMode(SHAPE);
   text(tmp, 0, 0, 1);
   popMatrix();
