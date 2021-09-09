@@ -93,7 +93,7 @@ void draw(){
   }
 }
 
-//Avaterを生成する関数を作成
+// Avaterを生成する関数を作成
 void Avater(int x, int y, int num) {
   PShape[] Avater_list = {
     Avater1,
