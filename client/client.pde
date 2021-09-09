@@ -26,11 +26,7 @@ PShape Avater3;
 PShape Avater4;
 PShape Yagura;
 PShape Tyouchin;
-PShape Yatai1;
-PShape Yatai2;
-PShape Yatai3;
-PShape Yatai4;
-PShape Yatai5;
+PShape Yatai;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false; //入力モードON/OFF
@@ -61,11 +57,7 @@ void setup() {
     Avater4 = loadShape("../Avater4/Avater4.obj");
     Yagura = loadShape("../Yagura/Yagura.obj");
     Tyouchin = loadShape("../tyouchin/tyouchin.obj");
-    Yatai1 = loadShape("../Yatai1/Yatai1.obj");
-    Yatai2 = loadShape("../Yatai2/Yatai2.obj");
-    Yatai3 = loadShape("../Yatai3/Yatai3.obj");
-    Yatai4 = loadShape("../Yatai4/Yatai4.obj");
-    Yatai5 = loadShape("../Yatai5/Yatai5.obj");
+    Yatai = loadShape("../Yatai/Yatai.obj");
 }
 
 void draw(){
@@ -144,18 +136,11 @@ void Yagura() {
 }
 
 void Yatai() {
-  PShape[] Yatai_list = {
-    Yatai1,
-    Yatai2,
-    Yatai3,
-    Yatai4,
-    Yatai5
-  };
-  for (int i = 0; i < Yatai_list.length; i++) {
+  for (int i = 0; i < 6; i++) {
     pushMatrix();
-    translate(i*3*road_w, 0, -11);
+    translate((i+1)*3*road_w, 20 * road_w, -11);
     lights();
-    shape(Yatai_list[i]);
+    shape(Yatai);
     popMatrix();
   }
 }
