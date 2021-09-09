@@ -105,7 +105,22 @@ void Avater(int x, int y, int num) {
   int avater_dir = (num-2)%4;
   
   pushMatrix();
-  translate(x*road_w, y*road_w, -11);
+  switch (num) {
+    case 2:
+      translate(x*road_w+16, y*road_w, -11);
+      break;
+    case 3:
+      translate(x*road_w, y*road_w+16, -11);
+      break;
+    case 4:
+      translate(x*road_w-16, y*road_w, -11);
+      break;
+    case 5:
+      translate(x*road_w, y*road_w-16, -11);
+      break;
+    default:
+      translate(x*road_w, y*road_w, -11);
+  }
   lights();
   rotateZ(PI/2 * (avater_dir+1));
   shape(Avater_list[avater_num]);
@@ -402,6 +417,10 @@ void draw_maze3D() {
   Yagura();
   Yatai1();
   Tyouchin();
+  Avater(17, 1, 3);
+  Avater(18, 1, 7);
+  Avater(19, 1, 11);
+  Avater(20, 1, 15);
 }
 
 //以下花火
