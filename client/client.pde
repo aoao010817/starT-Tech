@@ -28,7 +28,11 @@ PShape Yagura;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false; //入力モードON/OFF
+boolean move = false; //出力モードON/OFF
 String tmp = ""; //入力した文字列を記録するもの
+String move_tmp = ""; //壁際に流す
+float x = 0; //動いている文字のx軸
+float z = 600; //動いている文字のz軸
 float a = 0; //意味を成さない(実験用変数)
 
 void setup() {
@@ -192,21 +196,23 @@ void keyPressed() {
     // コメント入力
     // println("key pressed key=" + key + ",keyCode=" + keyCode); //動作確認コード
     if (keyCode == 47) {
-        keyFlag = true;
+        keyFlag = true; //「/」を入力したら入力モード
     }
     else if (keyCode == 10) {
-        keyFlag = false;
-        println("入力:" + tmp);
-        // client.write("str"+tmp);
-        tmp = "";
+        keyFlag = false; //Enterを押したら出力モード
+        println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
+        // client.write("str"+tmp); //サーバーに文字列の情報を送る。
+        move = true; //出力モードオン
+        move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
+        tmp = ""; //入力する文字列の初期化
     }
-    if (keyFlag){
-      if (keyCode != 37 && keyCode != 38 && keyCode != 39 && keyCode != 40){
-        if (keyCode == 8) { // backspace.
+    if (keyFlag){ //入力モードの時
+      if (keyCode != 37 && keyCode != 38 && keyCode != 39 && keyCode != 40){ //上下左右移動のコマンドは無視
+        if (keyCode == 8) { // backspaceを押したとき1文字消す
           if (tmp.length() >= 1) {
           tmp = tmp.substring(0, tmp.length()-1);
           }
-        } else if(keyCode != 47) {
+        } else if(keyCode != 47) { //「/」以外は入力する(入力切替時に先頭に「/」が入ってしまうことを修正すると必要なくなる。)
           tmp += key;
         }
      }
@@ -293,14 +299,10 @@ void draw_maze3D() {
       move_count = 0;
     }
   }
-  pushMatrix();
-  rotateX(a);
-  rotateY(a);
-  rotateZ(a);
-  a += 0.1;
-  textMode(SHAPE);
-  text(tmp, 0, 0, 1);
-  popMatrix();
+  text_input();
+  if (move){
+    text_move();
+  }
   Yagura();
 }
 
@@ -429,4 +431,46 @@ class ParticleSystem {
       }
     }
   }
+}
+
+//以下テキスト関連
+void text_input(){
+  pushMatrix();
+  fill(100); //灰色に変える。
+  rotateX(-1.6); //向き調整
+  textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
+  text(tmp, 120, 0, 0.9); //入力モード時の文字列を表示
+  popMatrix();
+  pushMatrix();
+  fill(255); //テキストボックスの背景
+  translate(200,-1,1.1); //丁度いい座標に移動
+  rotateX(-1.6); //向き調整
+  box(200,30,0.5); //テキストボックス作成
+  popMatrix();
+}
+
+//テキストを動かす関数
+void text_move(){
+  fill(255); //文字を白色に変える。
+  rotateX(-1.6); //向き調整
+  pushMatrix();
+  textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
+  if (z != 0 && x != 600){
+    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
+    z -= 1.0;
+  }
+  else if(x != 600){
+    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
+    x += 1.0;
+  }
+  else if(z != 600){
+    text(move_tmp, x, -50, z); //入力モード時の文字列を表示
+    z += 1.0;
+  }
+  else {
+    x = 0;
+    z = 600;
+    move = false;
+  }
+  popMatrix();
 }
