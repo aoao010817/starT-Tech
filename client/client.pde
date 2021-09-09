@@ -40,6 +40,7 @@ float com_z;
 float com_v;
 float text_result;
 ArrayList<String> del_com = new ArrayList();
+float tyouchin_angle = 0; // ちょうちんの縦移動に用いるcos計算に与える角度
 
 void setup() {
     size(1200, 900, P3D);
@@ -119,22 +120,23 @@ void Yagura() {
 
 void Tyouchin() {
   int[][] tyouchin_list = { // 中心座標を0, 0としたときのちょうちんの座標[x, y, z]
-    {0, 8, 0},
-    {8, 0, 0},
+    {0, 8, 24},
+    {8, 0, 36},
     {0, -8, 0},
-    {-8, 0, 0},
-    {5, 5, 0},
-    {-5, -5, 0},
-    {5, -5, 0},
-    {-5, 5, 0}
+    {-8, 0, 72},
+    {5, 5, 198},
+    {-5, -5, 246},
+    {5, -5, 114},
+    {-5, 5, 126}
   };
   for (int i = 0; i < tyouchin_list.length; i++) {
     pushMatrix();
-    translate((board_x-2+tyouchin_list[i][0])*road_w/2, (board_y-2+tyouchin_list[i][1])*road_w/2, tyouchin_list[i][2]);
+    translate((board_x-2+tyouchin_list[i][0])*road_w/2, (board_y-2+tyouchin_list[i][1])*road_w/2, 3*cos(radians(tyouchin_list[i][2]+tyouchin_angle)));
     lights();
     shape(Tyouchin);
     popMatrix();
   }
+  tyouchin_angle += 1.2;
 }
 
 // サーバーからメッセージを受け取った際に実行
@@ -143,8 +145,8 @@ void clientEvent(Client c) {
   println("C:" + S_str);
   if (S_str != null) {
     if (S_str.substring(0, 3).equals(C_id) && (S_str.length()-3)%8 == 0) { // 対象クライアントIDが自分のIDと等しいとき 
-      for (int x = 2; x < board_x-2; x++) { // 他ユーザーの描画をリセット
-        for (int y = 2; y < board_y-2; y++) {
+      for (int x = 1; x < board_x-1; x++) { // 他ユーザーの描画をリセット
+        for (int y = 1; y < board_y-1; y++) {
           if (road_map[x][y] < 18) {
             road_map[x][y] = 0;
           }
@@ -170,7 +172,6 @@ void clientEvent(Client c) {
       comment_l2.add("600.0");
       comment_l2.add(""+random(1,1.5));
       comment_l.add(comment_l2);
-      println(comment_l);
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -359,7 +360,6 @@ void draw_maze3D() {
       com_z = Float.valueOf(comment_l.get(i).get(3));
       com_v = Float.valueOf(comment_l.get(i).get(4));
       text_result = text_move(i, com, com_x, com_y, com_z, com_v); //これを適当にfor とかで全コメントで回す
-      println(1);
       if (text_result != 0){
         com_y += 100;
         if (com_z > 0 && com_x == 0){
