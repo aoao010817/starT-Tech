@@ -32,19 +32,16 @@ boolean keyFlag = false; //入力モードON/OFF
 boolean move = false; //出力モードON/OFF
 String tmp = ""; //入力した文字列を記録するもの
 String move_tmp = ""; //壁際に流す
-ArrayList<ArrayList<String>> comment_l = new ArrayList(); 
-String com = "";
-float com_x;
-float com_y;
-float com_z;
-float com_v;
+String[][] comments = new String[50][5];
+int comment_num = 0;
+int current_comment_index = 0;
 float text_result;
 int del_com[];
 
 void setup() {
     size(1200, 900, P3D);
-    client = new Client(this, "153.122.191.29", 5024);
-    //client = new Client(this, "", 5024);
+    //client = new Client(this, "153.122.191.29", 5024);
+    client = new Client(this, "", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -162,14 +159,12 @@ void clientEvent(Client c) {
       }
     } else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
       String comment = S_str.substring(3, S_str.length());
-      ArrayList<String> comment_l2 = new ArrayList<String>();
-      com_y = random(0,80);
-      comment_l2.add(comment);
-      comment_l2.add("0.0");
-      comment_l2.add(""+com_y);
-      comment_l2.add("600.0");
-      comment_l2.add(""+random(1,1.5));
-      comment_l.add(comment_l2);
+      comments[comment_num][0] = comment;
+      comments[comment_num][1] = str(0);
+      comments[comment_num][2] = str(random(20,120));
+      comments[comment_num][3] = str(600);
+      comments[comment_num][4] = str(random(1,1.5));
+      comment_num++;
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -350,34 +345,11 @@ void draw_maze3D() {
     }
   }
   text_input();
-  if (comment_l.length > 0){
-    int c = 0;
-    for (int i = 0 ;i < comment_l.length; i++){
-      com = comment_l.get(i).get(0);
-      com_x = Float.valueOf(comment_l.get(i).get(1));
-      com_y = Float.valueOf(comment_l.get(i).get(2)) - 100;
-      com_z = Float.valueOf(comment_l.get(i).get(3));
-      com_v = Float.valueOf(comment_l.get(i).get(4));
-      text_result = text_move(i, com, com_x, com_y, com_z, com_v); //これを適当にfor とかで全コメントで回す
-      if (text_result != 0){
-        com_y += 100;
-        ArrayList<String> comment3 = new ArrayList<String>(comment_l.get(i));
-        comment3.set(0, com);
-        comment3.set(1, ""+com_x);
-        comment3.set(2, ""+com_y);
-        comment3.set(3, ""+com_z);
-        comment_l.set(i, comment3);
+  if (comment_num > 0){
+    for (int i = 0; i < comment_num; i++) {
+      if (int(comments[i][1]) < 600 || int(comments[i][3]) < 600 ) {
+        text_move(i);
       }
-      else{
-        del_com[c] = i;
-        c++;
-      }
-    }
-    if (del_com.length > 0){
-      for (int i = 0; i < del_com.length; i++){
-        comment_l.remove(del_com[i]);
-      }
-      int del_com[];
     }
   }
   Yagura();
@@ -528,42 +500,44 @@ void text_input(){
 }
 
 //テキストを動かす関数
-float text_move(int i, String move_tmp, float x, float y, float z, float v){
+void text_move(int num){
+  String comment = comments[num][0];
+  float x = float(comments[num][1]);
+  float y = -float(comments[num][2]);
+  float z = float(comments[num][3]);
+  float v = float(comments[num][4]);
+  println(comment);
   fill(255); //文字を白色に変える。
   pushMatrix();
   rotateX(-PI/2); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  if (z != 0 && x != 600){
+  if (z > 0 && x < 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(PI/2);
-    text(move_tmp, 0, 0, 0);
+    text(comment, 0, 0, 0);//入力モード時の文字列を表示
     popMatrix();
-    z -= v;
+    comments[num][3] = str(z - v);
     popMatrix();
-    return z;
   }
-  else if(x != 600){
+  else if(x < 600){
     pushMatrix();
     translate(x,y,z);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    x += v;
+    comments[num][1] = str(x + v);
     popMatrix();
-    return x;
   }
-  else if(z != 600){
+  else if(z < 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(-PI/2);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    z += v;
+    comments[num][3] = str(z + v);
     popMatrix();
-    return z;
   }
   else {
     popMatrix();
-    return 0;
   }
 }
