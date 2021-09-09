@@ -38,6 +38,7 @@ float a = 0; //意味を成さない(実験用変数)
 void setup() {
     size(1200, 900, P3D);
     // client = new Client(this, "153.122.191.29", 5024);
+    client = new Client(this, "", 5024);
     make_board(20, 20, 24);
     init_maze();
     smooth(); // 描画を滑らかに
@@ -132,7 +133,7 @@ void clientEvent(Client c) {
           road_map[x][y] = 2 + int(id.substring(2))*4 + dir;
         }
       }
-    }else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
+    } else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
       String comment = S_str.substring(3, S_str.length());
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
@@ -448,21 +449,21 @@ void text_input(){
   fill(100); //灰色に変える。
   rotateX(-1.6); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  text(tmp, (board_x)/2*road_w, -road_w, 0.9); //入力モード時の文字列を表示
+  text(tmp, 120, -road_w+4, 0.9); //入力モード時の文字列を表示
   popMatrix();
   pushMatrix();
   fill(255); //テキストボックスの背景
-  translate((board_x)/2*road_w,-road_w-1,1.1); //丁度いい座標に移動
+  translate(200,-1,road_w); //丁度いい座標に移動
   rotateX(-1.6); //向き調整
-  box(200,30,0.5); //テキストボックス作成
+  box(196,30,0.5); //テキストボックス作成
   popMatrix();
 }
 
 //テキストを動かす関数
 void text_move(){
   fill(255); //文字を白色に変える。
-  rotateX(-1.6); //向き調整
   pushMatrix();
+  rotateX(-1.6); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
   if (z != 0 && x != 600){
     text(move_tmp, x, -50, z); //入力モード時の文字列を表示
