@@ -71,7 +71,7 @@ void draw(){
   }
   
   request_count++;
-  if (request_count >= 12 && id_exist) {
+  if (request_count >= 18 && id_exist) {
     request_count = 0;
     // format: クライアントID(3桁) + 向き(0～3) + X座標(2桁) + Y座標(2桁) 
 
