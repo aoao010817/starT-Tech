@@ -26,14 +26,14 @@ PShape Avater3;
 PShape Avater4;
 PShape Yagura;
 PShape Tyouchin;
-PShape Yatai1;
+PShape Yatai;
 Boolean id_exist = false;
 int request_count = 0;
 boolean keyFlag = false; //入力モードON/OFF
 boolean move = false; //出力モードON/OFF
 String tmp = ""; //入力した文字列を記録するもの
 String move_tmp = ""; //壁際に流す
-String[][] comments = new String[100][5];
+String[][] comments = new String[80][5];
 int comment_num = 0;
 int current_comment_index = 0;
 float text_result;
@@ -54,7 +54,7 @@ void setup() {
     Avater4 = loadShape("../Avater4/Avater4.obj");
     Yagura = loadShape("../Yagura/Yagura.obj");
     Tyouchin = loadShape("../tyouchin/tyouchin.obj");
-    Yatai1 = loadShape("../Yatai1/Yatai1.obj");
+    Yatai = loadShape("../Yatai/Yatai.obj");
 }
 
 void draw(){
@@ -102,7 +102,22 @@ void Avater(int x, int y, int num) {
   int avater_dir = (num-2)%4;
   
   pushMatrix();
-  translate(x*road_w, y*road_w, -11);
+  switch (num) {
+    case 2:
+      translate(x*road_w+16, y*road_w, -11);
+      break;
+    case 3:
+      translate(x*road_w, y*road_w+16, -11);
+      break;
+    case 4:
+      translate(x*road_w-16, y*road_w, -11);
+      break;
+    case 5:
+      translate(x*road_w, y*road_w-16, -11);
+      break;
+    default:
+      translate(x*road_w, y*road_w, -11);
+  }
   lights();
   rotateZ(PI/2 * (avater_dir+1));
   shape(Avater_list[avater_num]);
@@ -117,12 +132,14 @@ void Yagura() {
   popMatrix();
 }
 
-void Yatai1() {
-  pushMatrix();
-  translate((board_x-2)*road_w/2-8, (board_y-2)*road_w/2+230, -11);
-  lights();
-  shape(Yatai1);
-  popMatrix();
+void Yatai() {
+  for (int i = 0; i < 6; i++) {
+    pushMatrix();
+    translate((i+1)*3*road_w, 21 * road_w - 8, -11);
+    lights();
+    shape(Yatai);
+    popMatrix();
+  }
 }
 
 void Tyouchin() {
@@ -171,15 +188,15 @@ void clientEvent(Client c) {
       }
     } else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
       String comment = S_str.substring(3, S_str.length());
-      comments[current_comment_index][0] = comment + current_comment_index;
+      comments[current_comment_index][0] = comment;
       comments[current_comment_index][1] = str(0);
       comments[current_comment_index][2] = str(random(20,120));
       comments[current_comment_index][3] = str(600);
       comments[current_comment_index][4] = str(random(1,1.6));
-      if (comment_num < 100) {
+      if (comment_num < 80) {
         comment_num++;
       }
-      if (current_comment_index < 99) {
+      if (current_comment_index < 79) {
         current_comment_index++;
       } else {
         current_comment_index = 0;
@@ -254,7 +271,6 @@ void keyPressed() {
     }
     else if (keyCode == 10) {
         keyFlag = false; //Enterを押したら出力モード
-        println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
         client.write("str"+tmp); //サーバーに文字列の情報を送る。
         move = true; //出力モードオン
         move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
@@ -371,7 +387,11 @@ void draw_maze3D() {
   }
   Yagura();
   Tyouchin();
-  Yatai1();
+  Yatai();
+  Avater(17, 1, 3);
+  Avater(18, 1, 7);
+  Avater(19, 1, 11);
+  Avater(20, 1, 15);
 }
 
 //以下花火
