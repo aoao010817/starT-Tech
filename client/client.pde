@@ -33,14 +33,11 @@ boolean keyFlag = false; //入力モードON/OFF
 boolean move = false; //出力モードON/OFF
 String tmp = ""; //入力した文字列を記録するもの
 String move_tmp = ""; //壁際に流す
-ArrayList<ArrayList<String>> comment_l = new ArrayList(); 
-String com = "";
-float com_x;
-float com_y;
-float com_z;
-float com_v;
+String[][] comments = new String[80][5];
+int comment_num = 0;
+int current_comment_index = 0;
 float text_result;
-ArrayList<String> del_com = new ArrayList();
+int del_com[];
 float tyouchin_angle = 0; // ちょうちんの縦移動に用いるcos計算に与える角度
 
 void setup() {
@@ -74,7 +71,7 @@ void draw(){
   }
   
   request_count++;
-  if (request_count >= 12 && id_exist) {
+  if (request_count >= 18 && id_exist) {
     request_count = 0;
     // format: クライアントID(3桁) + 向き(0～3) + X座標(2桁) + Y座標(2桁) 
 
@@ -191,14 +188,19 @@ void clientEvent(Client c) {
       }
     } else if (S_str.substring(0, 3).equals("str")) { // サーバーからコメントを受信したときの処理
       String comment = S_str.substring(3, S_str.length());
-      ArrayList<String> comment_l2 = new ArrayList<String>();
-      com_y = random(20,100);
-      comment_l2.add(comment);
-      comment_l2.add("0.0");
-      comment_l2.add(""+com_y);
-      comment_l2.add("600.0");
-      comment_l2.add(""+random(1,1.6));
-      comment_l.add(comment_l2);
+      comments[current_comment_index][0] = comment;
+      comments[current_comment_index][1] = str(0);
+      comments[current_comment_index][2] = str(random(20,120));
+      comments[current_comment_index][3] = str(600);
+      comments[current_comment_index][4] = str(random(1,1.6));
+      if (comment_num < 80) {
+        comment_num++;
+      }
+      if (current_comment_index < 79) {
+        current_comment_index++;
+      } else {
+        current_comment_index = 0;
+      }
     } else if (C_id == "000") { // 自分のクライアントIDが未登録でサーバーからIDが発行されたとき
       if (S_str.length() == 3) {
          C_id = S_str;
@@ -269,7 +271,6 @@ void keyPressed() {
     }
     else if (keyCode == 10) {
         keyFlag = false; //Enterを押したら出力モード
-        println("入力:" + tmp); //出力される文字列のコンソール表示(消しても問題ない)。
         client.write("str"+tmp); //サーバーに文字列の情報を送る。
         move = true; //出力モードオン
         move_tmp = tmp; //文字列を動かす用の文字列に記録(要修正) 
@@ -379,46 +380,14 @@ void draw_maze3D() {
     }
   }
   text_input();
-  if (comment_l.size() > 0){
-    for (int i = 0 ;i < comment_l.size(); i++){
-      com = comment_l.get(i).get(0);
-      com_x = Float.valueOf(comment_l.get(i).get(1));
-      com_y = Float.valueOf(comment_l.get(i).get(2)) - 100;
-      com_z = Float.valueOf(comment_l.get(i).get(3));
-      com_v = Float.valueOf(comment_l.get(i).get(4));
-      text_result = text_move(i, com, com_x, com_y, com_z, com_v); //これを適当にfor とかで全コメントで回す
-      if (text_result != 0){
-        com_y += 100;
-        if (com_z > 0 && com_x == 0){
-          com_z = text_result;
-        }
-        else if(com_z < 0 && com_x < 600){
-          com_x = text_result;
-        }
-        else if(com_z < 600 && com_x > 600){
-          com_z = text_result;
-        }
-        ArrayList<String> comment3 = new ArrayList<String>(comment_l.get(i));
-        comment3.set(0, com);
-        comment3.set(1, ""+com_x);
-        comment3.set(2, ""+com_y);
-        comment3.set(3, ""+com_z);
-        comment_l.set(i, comment3);
-      }
-      else{
-        del_com.add(""+i);
-      }
-    }
-    if (del_com.size() > 0){
-      for (int i = 0; i < del_com.size(); i++){
-        comment_l.remove(del_com.get(i));
-      }
-      del_com.clear();
+  for (int i = 0; i < comment_num; i++) {
+    if (int(comments[i][1]) < 600 || int(comments[i][3]) < 600 ) {
+      text_move(i);
     }
   }
   Yagura();
-  Yatai();
   Tyouchin();
+  Yatai();
   Avater(17, 1, 3);
   Avater(18, 1, 7);
   Avater(19, 1, 11);
@@ -569,42 +538,43 @@ void text_input(){
 }
 
 //テキストを動かす関数
-float text_move(int i, String move_tmp, float x, float y, float z, float v){
+void text_move(int num){
+  String comment = comments[num][0];
+  float x = float(comments[num][1]);
+  float y = -float(comments[num][2]);
+  float z = float(comments[num][3]);
+  float v = float(comments[num][4]);
   fill(255); //文字を白色に変える。
   pushMatrix();
   rotateX(-PI/2); //向き調整
   textMode(SHAPE); //文字列のモード変更(コレにしないと解像度が酷い)
-  if (z > 0 && x == 0){
+  if (z > 0 && x < 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(PI/2);
-    text(move_tmp, 0, 0, 0);
+    text(comment, 0, 0, 0);//入力モード時の文字列を表示
     popMatrix();
-    z -= v;
+    comments[num][3] = str(z - v);
     popMatrix();
-    return z;
   }
-  else if(z < 0 && x < 600){
+  else if(x < 600){
     pushMatrix();
     translate(x,y,z);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    x += v;
+    comments[num][1] = str(x + v);
     popMatrix();
-    return x;
   }
-  else if(z < 600 && x > 600){
+  else if(z < 600){
     pushMatrix();
     translate(x,y,z);
     rotateY(-PI/2);
-    text(move_tmp, 0, 0, 0); //入力モード時の文字列を表示
+    text(comment, 0, 0, 0); //入力モード時の文字列を表示
     popMatrix();
-    z += v;
+    comments[num][3] = str(z + v);
     popMatrix();
-    return z;
   }
   else {
     popMatrix();
-    return 0;
   }
 }
